@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TaskFlow - Modern Task Manager</title>
+    <title>TaskZen - Smart Task Management</title>
+    <meta name="description" content="TaskZen - A modern task management application">
+    <meta name="theme-color" content="#030213">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="stylesheet" href="/css/styles.css">
     <style>
         :root {
             --font-size: 14px;
@@ -315,6 +320,7 @@
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             transition: box-shadow 0.2s ease, opacity 0.3s ease, transform 0.2s ease;
+            position: relative;
         }
 
         .task-item:hover {
@@ -645,201 +651,96 @@
             background-color: var(--accent);
         }
 
-        /* Mobile Styles */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                height: 100vh;
-                z-index: 60;
-            }
-
-            .sidebar-overlay {
-                position: fixed;
-                inset: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 40;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease, visibility 0.3s ease;
-            }
-
-            .sidebar-overlay.active {
-                opacity: 1;
-                visibility: visible;
-            }
-
-            .filters {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-
-            .task-meta {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.25rem;
-            }
-
-            .search-bar {
-                max-width: 200px;
-            }
-        }
-
-        /* Tag Colors */
-        .tag-work { background-color: #3b82f6; }
-        .tag-personal { background-color: #10b981; }
-        .tag-urgent { background-color: #ef4444; }
-        .tag-learning { background-color: #8b5cf6; }
-        .tag-custom1 { background-color: #f59e0b; }
-        .tag-custom2 { background-color: #ec4899; }
-        .tag-custom3 { background-color: #14b8a6; }
-        .tag-custom4 { background-color: #64748b; }
-        .tag-custom5 { background-color: #a855f7; }
-
-        /* PWA Install Prompt */
-        .install-prompt {
+        /* Loading States */
+        .loading {
             position: fixed;
-            bottom: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 0.75rem 1rem;
+            inset: 0;
+            background: var(--background);
             display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .install-prompt.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .install-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 0.75rem 1.25rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .toast.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .toast.success {
-            border-left: 4px solid var(--success);
-        }
-
-        .toast.error {
-            border-left: 4px solid var(--destructive);
-        }
-
-        /* Add Tag Modal */
-        .tag-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 200;
             align-items: center;
             justify-content: center;
+            z-index: 1000;
         }
 
-        .tag-modal.active {
-            display: flex;
-        }
-
-        .tag-modal-content {
-            background-color: var(--card);
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .tag-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .tag-modal-title {
-            font-size: 1.125rem;
-            font-weight: var(--font-weight-medium);
-        }
-
-        .tag-color-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 1rem 0;
-        }
-
-        .tag-color-option {
-            width: 2rem;
-            height: 2rem;
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--muted);
+            border-top-color: var(--primary);
             border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s ease;
+            animation: spin 1s infinite linear;
         }
 
-        .tag-color-option:hover {
-            transform: scale(1.1);
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .tag-color-option.selected {
-            border-color: var(--foreground);
-            transform: scale(1.1);
+        /* Drag and Drop */
+        .task-item.dragging {
+            opacity: 0.5;
+            background: var(--accent);
         }
 
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .task-item.drag-over {
+            border: 2px dashed var(--primary);
         }
 
-        @keyframes slideIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        /* Priority Indicators */
+        .priority-indicator {
+            width: 4px;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-radius: var(--radius) 0 0 var(--radius);
         }
 
-        .fade-in {
-            animation: fadeIn 0.3s ease forwards;
+        .priority-high { background-color: var(--destructive); }
+        .priority-medium { background-color: #f59e0b; }
+        .priority-low { background-color: var(--success); }
+
+        /* Priority Badge */
+        .priority-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        .priority-high { background: var(--destructive); color: white; }
+        .priority-medium { background: #f59e0b; color: white; }
+        .priority-low { background: var(--success); color: white; }
+
+        /* Task Progress */
+        .progress-bar {
+            height: 4px;
+            background: var(--muted);
+            border-radius: var(--radius);
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        .progress-value {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
         }
 
-        .slide-in {
-            animation: slideIn 0.3s ease forwards;
+        /* Subtasks */
+        .subtasks {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Sort Options */
+        .sort-options {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
         }
     </style>
 </head>
@@ -851,7 +752,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2>TaskFlow</h2>
+                <h2>TaskZen</h2>
             </div>
             
             <nav class="sidebar-nav">
@@ -932,6 +833,20 @@
                 <div id="tagFilters">
                     <!-- Tag filters will be populated by JavaScript -->
                 </div>
+
+                <!-- Sort Options -->
+                <div class="sort-options">
+                    <select class="filter-select" id="sortBy">
+                        <option value="date">Due Date</option>
+                        <option value="priority">Priority</option>
+                        <option value="name">Name</option>
+                    </select>
+                    <button class="icon-button" id="sortDirection" aria-label="Sort direction">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m-4 10l-4 4-4-4" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             
             <!-- Task List -->
@@ -947,6 +862,22 @@
                     <p>No tasks found. Create your first task!</p>
                 </div>
             </main>
+
+            <!-- Statistics Section -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTasks">0</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completedTasks">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="overdueTasks">0</div>
+                    <div class="stat-label">Overdue</div>
+                </div>
+            </div>
         </div>
         
         <!-- Floating Action Button -->
@@ -966,7 +897,7 @@
 
         <!-- PWA Install Prompt -->
         <div class="install-prompt" id="installPrompt">
-            <span>Install TaskFlow?</span>
+            <span>Install TaskZen?</span>
             <div class="install-actions">
                 <button class="button button-secondary" id="installCancel">Not Now</button>
                 <button class="button button-primary" id="installConfirm">Install</button>
@@ -1013,6 +944,25 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
                     </button>
+                </div>
+
+                <!-- Priority Selection -->
+                <div class="form-group">
+                    <label class="form-label">Priority</label>
+                    <div class="priority-selection">
+                        <button type="button" class="priority-option" data-priority="low">Low</button>
+                        <button type="button" class="priority-option" data-priority="medium">Medium</button>
+                        <button type="button" class="priority-option" data-priority="high">High</button>
+                    </div>
+                </div>
+                
+                <!-- Subtasks -->
+                <div class="form-group">
+                    <label class="form-label">Subtasks</label>
+                    <div class="subtasks-container">
+                        <div class="subtask-inputs"></div>
+                        <button type="button" class="add-subtask-button">Add Subtask</button>
+                    </div>
                 </div>
                 
                 <div class="modal-actions">
@@ -1062,6 +1012,38 @@
         </div>
     </div>
 
+    <!-- Task Shortcuts Modal -->
+    <div class="modal-overlay" id="shortcutsModal">
+        <div class="modal shortcuts-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Keyboard Shortcuts</h3>
+                <button class="close-button" id="closeShortcutsModal" aria-label="Close modal">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-content">
+                <div class="shortcut-grid">
+                    <div class="shortcut-key">Ctrl + N</div>
+                    <div>Create new task</div>
+                    
+                    <div class="shortcut-key">Ctrl + /</div>
+                    <div>Show keyboard shortcuts</div>
+                    
+                    <div class="shortcut-key">Esc</div>
+                    <div>Close modals</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" id="loadingState">
+        <div class="loading-spinner"></div>
+    </div>
+
     <script>
         // Application State
         let tasks = [];
@@ -1080,6 +1062,11 @@
         let currentEditingTaskId = null;
         let deferredPrompt = null;
         let selectedTagColor = 'tag-work';
+
+        // New state variables
+        let sortBy = 'date';
+        let sortDirection = 'asc';
+        let selectedPriority = 'medium';
 
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
@@ -1117,19 +1104,36 @@
         const createTagButton = document.getElementById('createTagButton');
         const colorOptions = document.querySelectorAll('.tag-color-option');
         const tagsNavButton = document.getElementById('tagsNavButton');
+        const loadingState = document.getElementById('loadingState');
+        const totalTasks = document.getElementById('totalTasks');
+        const completedTasks = document.getElementById('completedTasks');
+        const overdueTasks = document.getElementById('overdueTasks');
+        const shortcutsModal = document.getElementById('shortcutsModal');
+        const closeShortcutsModal = document.getElementById('closeShortcutsModal');
 
         // Initialize App
         function init() {
-            loadTasks();
-            loadTags();
-            updateSidebar();
-            updateTheme();
-            renderTagFilters();
-            renderTagSelection();
-            renderTasks();
-            attachEventListeners();
-            checkDueDates();
-            setupPWA();
+            // Show loading state
+            loadingState.style.display = 'flex';
+
+            // Initialize with Promise.all for parallel loading
+            Promise.all([
+                loadTasks(),
+                loadTags(),
+                loadSettings()
+            ]).then(() => {
+                updateSidebar();
+                updateTheme();
+                renderTagFilters();
+                renderTagSelection();
+                renderTasks();
+                updateStatistics();
+                initDragAndDrop();
+                setupPWA();
+                
+                // Hide loading state
+                loadingState.style.display = 'none';
+            });
             
             // Check screen size on resize
             window.addEventListener('resize', () => {
@@ -1159,10 +1163,11 @@
                 renderTasks();
             });
             
-            searchInput.addEventListener('input', (e) => {
+            // Debounce search input
+            searchInput.addEventListener('input', debounce((e) => {
                 searchQuery = e.target.value.toLowerCase();
                 renderTasks();
-            });
+            }, 300));
             
             fabButton.addEventListener('click', openTaskModal);
             cancelButton.addEventListener('click', closeTaskModal);
@@ -1214,6 +1219,10 @@
                 if (e.key === 'Escape') {
                     closeTaskModal();
                     closeTagModalFunc();
+                }
+                if (e.ctrlKey && e.key === '/') {
+                    e.preventDefault();
+                    showShortcutsModal();
                 }
             });
 
@@ -1368,6 +1377,16 @@
                             }).join('')}
                             ${task.dueDate ? `<span class="task-date ${dueDateClass}">Due: ${formatDate(task.dueDate)}</span>` : ''}
                         </div>
+
+                        <!-- Priority Badge -->
+                        <div class="priority-badge ${task.priority}">${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</div>
+                        
+                        <!-- Task Progress -->
+                        ${task.subtasks && task.subtasks.length > 0 ? `
+                        <div class="progress-bar">
+                            <div class="progress-value" style="width: ${calculateProgress(task.subtasks)}%"></div>
+                        </div>
+                        ` : ''}
                     </div>
                     <div class="task-actions">
                         <button class="task-button edit-button" onclick="editTask('${task.id}')" aria-label="Edit task">
@@ -1386,8 +1405,9 @@
         }
 
         function getFilteredTasks() {
-            return tasks.filter(task => {
-                const tagMatch = selectedTags.length === 0 || task.tags.some(tag => selectedTags.includes(tag));
+            let filtered = tasks.filter(task => {
+                const tagMatch = selectedTags.length === 0 || 
+                    task.tags.some(tag => selectedTags.includes(tag));
                 const dateMatch = 
                     (dueDateFilter === 'all') || 
                     (dueDateFilter === 'today' && task.dueDate === getTodayString()) ||
@@ -1398,6 +1418,29 @@
                     (task.description && task.description.toLowerCase().includes(searchQuery));
                 return tagMatch && dateMatch && searchMatch;
             });
+
+            // Sort tasks
+            filtered.sort((a, b) => {
+                switch(sortBy) {
+                    case 'date':
+                        return sortDirection === 'asc' ? 
+                            new Date(a.dueDate) - new Date(b.dueDate) :
+                            new Date(b.dueDate) - new Date(a.dueDate);
+                    case 'priority':
+                        const priorityOrder = { high: 3, medium: 2, low: 1 };
+                        return sortDirection === 'asc' ?
+                            priorityOrder[a.priority] - priorityOrder[b.priority] :
+                            priorityOrder[b.priority] - priorityOrder[a.priority];
+                    case 'name':
+                        return sortDirection === 'asc' ?
+                            a.title.localeCompare(b.title) :
+                            b.title.localeCompare(a.title);
+                    default:
+                        return 0;
+                }
+            });
+
+            return filtered;
         }
 
         function toggleTask(id) {
@@ -1431,6 +1474,7 @@
                 document.getElementById('taskDueDate').value = task.dueDate || '';
                 selectedTaskTags = [...task.tags];
                 renderTagSelection();
+                updatePrioritySelection(task.priority);
                 openTaskModal();
             }
         }
@@ -1456,39 +1500,44 @@
             const title = document.getElementById('taskTitle').value.trim();
             const description = document.getElementById('taskDescription').value.trim();
             const dueDate = document.getElementById('taskDueDate').value;
+            const subtasks = Array.from(document.querySelectorAll('.subtask-input'))
+                .map(input => ({
+                    id: Date.now() + Math.random(),
+                    text: input.value.trim(),
+                    completed: false
+                }))
+                .filter(subtask => subtask.text);
             
             if (!title) {
                 showToast('Task title is required', 'error');
                 return;
             }
             
+            const taskData = {
+                title,
+                description,
+                dueDate,
+                tags: [...selectedTaskTags],
+                priority: selectedPriority,
+                subtasks,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            
             if (currentEditingTaskId) {
-                // Update existing task
-                const task = tasks.find(t => t.id === currentEditingTaskId);
-                if (task) {
-                    task.title = title;
-                    task.description = description;
-                    task.dueDate = dueDate;
-                    task.tags = [...selectedTaskTags];
+                const taskIndex = tasks.findIndex(t => t.id === currentEditingTaskId);
+                if (taskIndex !== -1) {
+                    tasks[taskIndex] = { ...tasks[taskIndex], ...taskData };
                     showToast('Task updated successfully!', 'success');
                 }
             } else {
-                // Create new task
-                const newTask = {
-                    id: Date.now().toString(),
-                    title,
-                    description,
-                    dueDate,
-                    tags: [...selectedTaskTags],
-                    completed: false,
-                    createdAt: new Date().toISOString()
-                };
-                tasks.unshift(newTask);
+                tasks.unshift({ id: Date.now().toString(), ...taskData });
                 showToast('Task created successfully!', 'success');
             }
             
             saveTasks();
             renderTasks();
+            updateStatistics();
             closeTaskModal();
         }
 
@@ -1605,44 +1654,150 @@
             }
         }
 
+        // Performance Optimizations
+        const debounce = (fn, delay) => {
+            let timeoutId;
+            return (...args) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => fn(...args), delay);
+            };
+        };
+
+        // Drag and Drop
+        function initDragAndDrop() {
+            const taskItems = document.querySelectorAll('.task-item');
+            taskItems.forEach(item => {
+                item.setAttribute('draggable', true);
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragenter', handleDragEnter);
+                item.addEventListener('dragleave', handleDragLeave);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            e.target.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const id = e.dataTransfer.getData('text/plain');
+            const droppedTask = tasks.find(t => t.id === id);
+            const targetTask = tasks.find(t => t.id === e.target.dataset.taskId);
+            
+            if (droppedTask && targetTask && droppedTask.id !== targetTask.id) {
+                // Swap tasks
+                const temp = droppedTask.order;
+                droppedTask.order = targetTask.order;
+                targetTask.order = temp;
+                
+                // Sort tasks by order
+                tasks.sort((a, b) => a.order - b.order);
+                
+                saveTasks();
+                renderTasks();
+            }
+            
+            e.target.classList.remove('drag-over');
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const overdue = tasks.filter(t => !t.completed && isOverdue(t.dueDate)).length;
+            const highPriority = tasks.filter(t => !t.completed && t.priority === 'high').length;
+            
+            totalTasks.textContent = total;
+            completedTasks.textContent = completed;
+            overdueTasks.textContent = overdue;
+            
+            // Add completion rate
+            const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+        }
+
+        // Initialize new features
+        function initNewFeatures() {
+            // Sort listeners
+            document.getElementById('sortBy').addEventListener('change', (e) => {
+                sortBy = e.target.value;
+                renderTasks();
+            });
+            
+            document.getElementById('sortDirection').addEventListener('click', () => {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                renderTasks();
+            });
+            
+            // Priority selection
+            document.querySelectorAll('.priority-option').forEach(button => {
+                button.addEventListener('click', () => {
+                    selectedPriority = button.dataset.priority;
+                    updatePrioritySelection();
+                });
+            });
+            
+            // Subtasks
+            document.querySelector('.add-subtask-button').addEventListener('click', addSubtaskInput);
+        }
+
+        // Add to init function
+        function init() {
+            // ...existing code...
+            initNewFeatures();
+            // ...existing code...
+        }
+
         // Utility Functions
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        function escapeHtml(html) {
+            const text = document.createElement('textarea');
+            text.textContent = html;
+            return text.innerHTML;
         }
 
         function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString();
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
         }
 
-        function getTodayString() {
-            return new Date().toISOString().split('T')[0];
-        }
-
-        function isWithinWeek(dateString) {
-            if (!dateString) return false;
-            const taskDate = new Date(dateString);
+        function isOverdue(dueDate) {
+            if (!dueDate) return false;
             const today = new Date();
-            const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-            return taskDate >= today && taskDate <= weekFromNow;
+            const due = new Date(dueDate);
+            return due < today.setHours(0, 0, 0, 0);
         }
 
-        function isOverdue(dateString) {
-            if (!dateString) return false;
-            const taskDate = new Date(dateString);
+        function isWithinWeek(dueDate) {
+            if (!dueDate) return false;
             const today = new Date();
-            return taskDate < today;
+            const due = new Date(dueDate);
+            const diffTime = due - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays > 0 && diffDays <= 7;
         }
 
-        // Expose functions to global scope for inline event handlers
-        window.toggleTagFilter = toggleTagFilter;
-        window.toggleTaskTag = toggleTaskTag;
-        window.toggleTask = toggleTask;
-        window.deleteTask = deleteTask;
-        window.editTask = editTask;
+        function calculateProgress(subtasks) {
+            if (!subtasks || subtasks.length === 0) return 0;
+            const completed = subtasks.filter(subtask => subtask.completed).length;
+            return Math.round((completed / subtasks.length) * 100);
+        }
 
         // Initialize the application
         init();
