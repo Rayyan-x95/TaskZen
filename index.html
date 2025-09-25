@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskZen - Modern Task Manager</title>
+    <meta name="description" content="A modern, offline-first task manager with advanced productivity features">
+    <meta name="keywords" content="task manager, productivity, PWA, offline, mobile">
+    <meta name="author" content="TaskZen">
+    
+    <!-- PWA & Mobile Optimization -->
+    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="stylesheet" href="src/css/themes.css">
+    <link rel="stylesheet" href="src/css/mobile-enhancements.css">
+    <link rel="stylesheet" href="src/css/enhanced-task.css">
+    <link rel="stylesheet" href="src/css/calendar.css">
+    <link rel="stylesheet" href="src/css/analytics.css">
+    <link rel="stylesheet" href="src/css/collaboration.css">
+        <link rel="stylesheet" href="src/css/smartAutomation.css">
+    <link rel="stylesheet" href="src/css/oauth.css">
+    <link rel="stylesheet" href="src/css/browser-compatibility.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="src/assets/icons/favicon.png">
+    
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TaskZen">
+    <link rel="apple-touch-icon" href="src/assets/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="src/assets/icons/icon-192x192.png">
+    
+    <!-- Android Chrome -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="msapplication-TileColor" content="#4a90e2">
+    <meta name="msapplication-TileImage" content="src/assets/icons/icon-144x144.png">
+    
+    <!-- Performance & SEO -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+</head>
+<body class="theme-light">
+    <!-- Third-Party Sign Up -->
+    <div class="auth-container" id="authContainer">
+    <div class="auth-card glass">
+            <h2>Sign up or Log in to TaskZen</h2>
+            <div class="third-party-signup">
+                <button class="oauth-btn google" id="googleSignUp">
+                    <img src="src/assets/icons/google.svg" alt="Google logo" class="oauth-icon" />
+                    Sign up with Google
+                </button>
+                <button class="oauth-btn microsoft" id="microsoftSignUp">
+                    <img src="src/assets/icons/microsoft.svg" alt="Microsoft logo" class="oauth-icon" />
+                    Sign up with Microsoft
+                </button>
+                <button class="oauth-btn apple" id="appleSignUp">
+                    <img src="src/assets/icons/apple.svg" alt="Apple logo" class="oauth-icon" />
+                    Sign up with Apple
+                </button>
+            </div>
+            <div class="divider"><span>or</span></div>
+            <button class="btn secondary" id="continueWithoutAccount">Continue without account</button>
+        </div>
+    </div>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo-container">
+                <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                </button>
+                <h1>TaskZen</h1>
+                <button id="themeToggle" aria-label="Toggle theme">🌙</button>
+            </div>
+            <nav class="main-nav" id="mainNav" role="tablist">
+                <button class="nav-item active" data-view="tasks" role="tab" aria-selected="true">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-label">Tasks</span>
+                </button>
+                <button class="nav-item" data-view="kanban" role="tab" aria-selected="false">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Kanban</span>
+                </button>
+                <button class="nav-item" data-view="calendar" role="tab" aria-selected="false">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-label">Calendar</span>
+                </button>
+                <button class="nav-item" data-view="analytics" role="tab" aria-selected="false">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-label">Analytics</span>
+                </button>
+                <button class="nav-item" data-view="collaboration" role="tab" aria-selected="false">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Team</span>
+                </button>
+                    <button class="nav-item" data-view="smartAutomation" role="tab" aria-selected="false">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-label">AI Assistant</span>
+                    </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <!-- Task Management Interface -->
+        <section id="tasksView" class="view active" role="tabpanel" aria-labelledby="tasks-tab">
+            <div class="task-controls glass">
+                <div class="primary-actions">
+                    <button id="addTask" class="btn primary fab-style" aria-label="Add new task">
+                        <span class="btn-icon">+</span>
+                        <span class="btn-text">New Task</span>
+                    </button>
+                    <button id="bulkActions" class="btn secondary hidden">
+                        <span class="btn-icon">⚡</span>
+                        <span class="btn-text">Actions</span>
+                    </button>
+                </div>
+                <div class="task-filters">
+                    <div class="filter-group">
+                        <select id="priorityFilter" aria-label="Filter by priority" class="filter-select">
+                            <option value="">All Priorities</option>
+                            <option value="low">🟢 Low</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="high">🟠 High</option>
+                            <option value="urgent">🔴 Urgent</option>
+                        </select>
+                        <select id="statusFilter" aria-label="Filter by status" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="todo">📝 To Do</option>
+                            <option value="in-progress">⏳ In Progress</option>
+                            <option value="done">✅ Done</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <input type="text" id="searchTasks" placeholder="Search tasks..." aria-label="Search tasks" class="search-input">
+                        <button id="voiceSearch" class="voice-btn" aria-label="Voice search" title="Voice search">
+                            🎤
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="task-view-options">
+                <button class="view-toggle active" data-view="list" aria-label="List view">📋</button>
+                <button class="view-toggle" data-view="grid" aria-label="Grid view">⊞</button>
+                <button class="view-toggle" data-view="compact" aria-label="Compact view">☰</button>
+            </div>
+            <div id="taskList" class="task-list" role="list"></div>
+            <div id="emptyState" class="empty-state hidden">
+                <div class="empty-icon">📝</div>
+                <h3>No tasks yet</h3>
+                <p>Create your first task to get started with TaskZen</p>
+                <button class="btn primary" onclick="document.getElementById('addTask').click()">Create Task</button>
+            </div>
+        </section>
+
+        <!-- Kanban Board View -->
+        <section id="kanbanView" class="view">
+            <div class="kanban-board glass">
+                <div class="kanban-column" data-status="todo">
+                    <h3>To Do</h3>
+                    <div class="kanban-tasks"></div>
+                </div>
+                <div class="kanban-column" data-status="in-progress">
+                    <h3>In Progress</h3>
+                    <div class="kanban-tasks"></div>
+                </div>
+                <div class="kanban-column" data-status="done">
+                    <h3>Done</h3>
+                    <div class="kanban-tasks"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendar View -->
+        <section id="calendarView" class="view">
+            <div class="calendar-container glass">
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button id="prevMonth" aria-label="Previous period">‹</button>
+                        <button id="todayBtn" class="today-btn">Today</button>
+                        <button id="nextMonth" aria-label="Next period">›</button>
+                    </div>
+                    <div class="current-period" id="currentMonth" aria-live="polite"></div>
+                    <div class="view-toggles">
+                        <button id="monthView" class="view-toggle active" aria-label="Month view">Month</button>
+                        <button id="weekView" class="view-toggle" aria-label="Week view">Week</button>
+                        <button id="dayView" class="view-toggle" aria-label="Day view">Day</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" role="grid" aria-label="Calendar"></div>
+            </div>
+        </section>
+
+        <!-- Analytics View -->
+        <section id="analyticsView" class="view">
+            <div class="analytics-header glass">
+                <div class="analytics-controls">
+                    <select id="analyticsPeriod" class="filter-select">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last year</option>
+                    </select>
+                    <button id="refreshAnalytics" class="btn secondary">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">Refresh</span>
+                    </button>
+                    <button id="exportData" class="btn primary">
+                        <span class="btn-icon">📊</span>
+                        <span class="btn-text">Export</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Overview Cards -->
+            <div id="analyticsOverview" class="analytics-overview">
+                <!-- Overview cards will be populated by JavaScript -->
+            </div>
+            
+            <!-- Charts Grid -->
+            <div class="analytics-grid">
+                <div class="analytics-card chart-card">
+                    <div id="productivityChart">
+                        <!-- Productivity chart -->
+                    </div>
+                </div>
+                
+                <div class="analytics-card chart-card">
+                    <div id="completionTrends">
+                        <!-- Completion trends -->
+                    </div>
+                </div>
+                
+                <div class="analytics-card chart-card">
+                    <div id="priorityDistribution">
+                        <!-- Priority distribution -->
+                    </div>
+                </div>
+                
+                <div class="analytics-card chart-card">
+                    <div id="timeAnalysis">
+                        <!-- Time analysis -->
+                    </div>
+                </div>
+                
+                <div class="analytics-card chart-card">
+                    <div id="goalsProgress">
+                        <!-- Goals progress -->
+                    </div>
+                </div>
+                
+                <div class="analytics-card chart-card">
+                    <div id="categoryBreakdown">
+                        <!-- Category breakdown -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Collaboration View -->
+        <section id="collaborationView" class="view">
+            <div class="collaboration-view glass">
+                <div class="collaboration-main">
+                    <!-- Workspace Info -->
+                    <div id="workspaceInfo">
+                        <div class="workspace-placeholder">
+                            <div class="placeholder-content">
+                                <h3>🚀 Get Started with Team Collaboration</h3>
+                                <p>Create or join a workspace to collaborate with your team in real-time.</p>
+                                <div class="placeholder-actions">
+                                    <button id="createWorkspace" class="btn primary">
+                                        <span class="btn-icon">➕</span>
+                                        <span class="btn-text">Create Workspace</span>
+                                    </button>
+                                    <button id="joinWorkspace" class="btn secondary">
+                                        <span class="btn-icon">🔗</span>
+                                        <span class="btn-text">Join Workspace</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shared Tasks -->
+                    <div class="shared-tasks-section">
+                        <div class="section-header">
+                            <h3>📋 Shared Tasks</h3>
+                            <button class="btn secondary" id="refreshSharedTasks">
+                                <span class="btn-icon">🔄</span>
+                                <span class="btn-text">Refresh</span>
+                            </button>
+                        </div>
+                        <div id="sharedTasksList" class="shared-tasks-list">
+                            <!-- Shared tasks will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="collaboration-sidebar">
+                    <!-- Connection Status -->
+                    <div id="connectionStatus" class="connection-status disconnected">Disconnected</div>
+                    
+                    <!-- Connected Users -->
+                    <div id="connectedUsers">
+                        <!-- Connected users will be populated here -->
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="recent-activity">
+                        <h4>📈 Recent Activity</h4>
+                        <div id="activityFeed" class="activity-feed">
+                            <div class="activity-item">
+                                <div class="activity-icon">✅</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">Task completed</div>
+                                    <div class="activity-time">2 min ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">💬</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">New comment added</div>
+                                    <div class="activity-time">5 min ago</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">👤</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">User joined workspace</div>
+                                    <div class="activity-time">1 hour ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+            <!-- Smart Automation View -->
+            <section id="smartAutomation" class="view-section">
+                <div class="automation-header glass">
+                    <h1>🤖 Smart Automation</h1>
+                    <p>Intelligent task management with AI-powered suggestions and automation</p>
+                </div>
+            
+                <div class="automation-nav">
+                    <button class="automation-tab active" data-tab="suggestions">
+                        Smart Suggestions
+                    </button>
+                    <button class="automation-tab" data-tab="templates">
+                        Templates
+                    </button>
+                    <button class="automation-tab" data-tab="automation">
+                        Automation Rules
+                    </button>
+                    <button class="automation-tab" data-tab="ai-organization">
+                        AI Organization
+                    </button>
+                </div>
+
+                <!-- Smart Suggestions Tab -->
+                <div id="suggestions" class="automation-section active">
+                    <div class="suggestions-header">
+                        <h2>Smart Suggestions</h2>
+                        <button id="refreshSuggestions" class="refresh-suggestions-btn">
+                            <i class="fas fa-sync"></i>
+                            Refresh Suggestions
+                        </button>
+                    </div>
+                
+                    <div class="automation-analytics">
+                        <div class="analytics-grid">
+                            <div class="analytics-item">
+                                <span class="analytics-value" id="suggestionsApplied">0</span>
+                                <span class="analytics-label">Suggestions Applied</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-value" id="timeSaved">0h</span>
+                                <span class="analytics-label">Time Saved</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-value" id="automationScore">0%</span>
+                                <span class="analytics-label">Automation Score</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-value" id="patternConfidence">0%</span>
+                                <span class="analytics-label">Pattern Confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div id="smartSuggestions">
+                        <!-- Smart suggestions will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Templates Tab -->
+                <div id="templates" class="automation-section">
+                    <div class="template-controls">
+                        <button id="createTemplate" class="btn primary">
+                            <i class="fas fa-plus"></i>
+                            Create Template
+                        </button>
+                        <button id="useTemplate" class="btn secondary">
+                            <i class="fas fa-rocket"></i>
+                            Use Template
+                        </button>
+                    </div>
+                
+                    <div id="templatesContainer">
+                        <!-- Templates will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Automation Rules Tab -->
+                <div id="automation" class="automation-section">
+                    <div class="automation-rules-header">
+                        <h2>Automation Rules</h2>
+                        <button id="manageAutomation" class="btn primary">
+                            <i class="fas fa-cog"></i>
+                            Create Rule
+                        </button>
+                    </div>
+                
+                    <div id="automationRules">
+                        <!-- Automation rules will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- AI Organization Tab -->
+                <div id="ai-organization" class="automation-section">
+                    <div class="ai-organization">
+                        <h2>🧠 AI-Powered Organization</h2>
+                        <p>Let artificial intelligence analyze your tasks and suggest optimal organization strategies based on your work patterns and productivity data.</p>
+                    
+                        <button id="organizeAI" class="ai-organize-btn">
+                            <span class="icon">🔮</span>
+                            Analyze & Organize My Tasks
+                        </button>
+                    
+                            <div id="aiOrganizationResults" class="ai-results hidden">
+                            <!-- AI organization results will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals will be rendered here by JavaScript components -->
+        <div id="modalContainer"></div>
+    </div>
+    </main>
+
+    <!-- Pomodoro Timer -->
+    <div id="pomodoroWidget" class="widget collapsed">
+        <div class="widget-header">
+            <h3>Pomodoro Timer</h3>
+            <button class="toggle-widget">▼</button>
+        </div>
+        <div class="widget-content">
+            <div id="pomodoroTimer" class="timer">25:00</div>
+            <div class="timer-controls">
+                <button id="startPomodoro" class="btn">Start</button>
+                <button id="resetPomodoro" class="btn">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2>Add/Edit Task</h2>
+            <form id="taskForm">
+                <input type="text" id="taskTitle" placeholder="Task title" required aria-label="Task title">
+                <div class="form-row">
+                    <select id="taskPriority" required aria-label="Task priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                    <input type="date" id="taskDueDate" aria-label="Task due date">
+                </div>
+                <textarea id="taskDescription" placeholder="Task description" aria-label="Task description"></textarea>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskCategories">Categories</label>
+                        <select id="taskCategories" multiple>
+                            <!-- Categories will be populated dynamically -->
+                        </select>
+                        <button type="button" id="addCategory" class="btn secondary">+ New Category</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskTags">Tags</label>
+                        <input type="text" id="taskTags" placeholder="Enter tags, separated by commas">
+                    </div>
+                </div>
+
+                <div class="recurring-section">
+                    <label for="taskRecurring">Recurring Task</label>
+                    <select id="taskRecurring">
+                        <option value="">Not recurring</option>
+                        <option value="1 day">Daily</option>
+                        <option value="7 days">Weekly</option>
+                        <option value="30 days">Monthly</option>
+                        <option value="custom">Custom...</option>
+                    </select>
+                </div>
+
+                <div class="subtasks-section">
+                    <h4>Subtasks</h4>
+                    <div id="subtasksList"></div>
+                    <button type="button" id="addSubtask" class="btn secondary">+ Add Subtask</button>
+                </div>
+
+                <div class="notes-section">
+                    <h4>Notes</h4>
+                    <div id="notesList"></div>
+                    <button type="button" id="addNote" class="btn secondary">+ Add Note</button>
+                </div>
+
+                <div class="attachments-section">
+                    <h4>Attachments</h4>
+                    <div id="attachmentsList"></div>
+                    <input type="file" id="attachmentInput" class="visually-hidden" aria-label="Attachment">
+                    <button type="button" id="addAttachment" class="btn secondary">+ Add Attachment</button>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">Save</button>
+                    <button type="button" class="btn secondary" onclick="window.app.taskComponent.closeTaskModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Third-party Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Application Scripts -->
+    <script type="module" src="src/js/mobile-enhancements.js"></script>
+    <script type="module" src="src/js/app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.error('ServiceWorker registration failed:', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+/* Browser Compatibility and Cross-Platform Optimizations */
+
+/* Safari-specific fixes */
+@supports (-webkit-appearance: none) {
+    /* Fix input appearance in Safari */
+    .task-input,
+    .search-input,
+    input[type="text"],
+    input[type="search"] {
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: var(--radius-md);
+        background-color: var(--background-card);
+    }
+    
+    /* Fix button appearance in Safari */
+    .btn,
+    .fab,
+    button {
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: var(--radius-md);
+    }
+    
+    /* Safari scrollbar styling */
+    .task-list,
+    .mobile-nav-menu {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Fix backdrop-filter support in Safari */
+    .mobile-nav-overlay,
+    .modal-backdrop {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    /* Prevent zoom on input focus */
+    input,
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+    
+    /* Fix viewport height issues on iOS */
+    .app-container {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+    
+    /* iOS safe area support */
+    .header {
+        padding-top: max(var(--spacing-md), env(safe-area-inset-top));
+    }
+    
+    .mobile-nav {
+        padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom));
+    }
+    
+    /* Fix iOS bounce scroll */
+    body {
+        -webkit-overflow-scrolling: touch;
+        overflow-scrolling: touch;
+    }
+    
+    /* Prevent iOS callout menu */
+    .task-item,
+    .task-text {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    /* Allow text selection for editable content */
+    .task-text[contenteditable="true"],
+    input,
+    textarea {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+}
+
+/* Chrome and Chromium-based browsers */
+@supports (display: -webkit-box) {
+    /* Custom scrollbar for Webkit browsers */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--background-secondary);
+        border-radius: var(--radius-sm);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: var(--radius-sm);
+        transition: background-color var(--transition-speed);
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+    }
+    
+    /* Fix Chrome autofill styling */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px var(--background-card) inset;
+        -webkit-text-fill-color: var(--text-primary);
+        transition: background-color 5000s ease-in-out 0s;
+    }
+}
+
+/* Firefox-specific fixes */
+@-moz-document url-prefix() {
+    /* Fix button styling in Firefox */
+    .btn,
+    .fab,
+    button {
+        -moz-appearance: none;
+    }
+    
+    /* Fix input styling in Firefox */
+    .task-input,
+    .search-input,
+    input[type="text"] {
+        -moz-appearance: none;
+    }
+    
+    /* Firefox scrollbar styling */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) var(--background-secondary);
+    }
+}
+
+/* Edge-specific fixes */
+@supports (-ms-ime-align: auto) {
+    /* Fix flexbox issues in older Edge */
+    .task-item,
+    .btn-group,
+    .mobile-nav {
+        display: -ms-flexbox;
+        display: flex;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000000;
+        --text-primary: #000000;
+        --text-secondary: #000000;
+        --background-card: #ffffff;
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+    
+    .task-item {
+        border: 2px solid var(--border-color);
+    }
+    
+    .btn {
+        border: 2px solid var(--text-primary);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .task-item,
+    .btn,
+    .fab {
+        transition: none !important;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets for touch devices */
+    .btn,
+    .task-actions button,
+    .mobile-nav button {
+        min-height: var(--touch-target);
+        min-width: var(--touch-target);
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    /* Remove hover effects on touch devices */
+    .task-item:hover,
+    .btn:hover {
+        transform: none;
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* Enhanced focus indicators for touch */
+    .task-item:focus-within,
+    .btn:focus {
+        outline: 3px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+}
+
+/* Pointer device optimizations */
+@media (hover: hover) and (pointer: fine) {
+    /* Enhanced hover effects for precise pointers */
+    .task-item:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    /* Smaller scroll indicators for precise pointers */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+}
+
+/* Print styles for cross-platform printing */
+@media print {
+    .mobile-nav,
+    .fab,
+    .task-actions,
+    .voice-search-btn {
+        display: none !important;
+    }
+    
+    .task-list {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .task-item {
+        break-inside: avoid;
+        margin-bottom: var(--spacing-sm);
+        border: 1px solid #ccc;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+}
+
+/* Dark mode cross-browser compatibility */
+@media (prefers-color-scheme: dark) {
+    /* Ensure consistent dark mode across browsers */
+    :root {
+        color-scheme: dark;
+    }
+    
+    /* Fix form controls in dark mode */
+    input,
+    textarea,
+    select {
+        color-scheme: dark;
+        background-color: var(--background-card);
+        color: var(--text-primary);
+    }
+}
+
+/* RTL language support */
+[dir="rtl"] {
+    .task-item {
+        text-align: right;
+    }
+    
+    .task-actions {
+        left: var(--spacing-sm);
+        right: auto;
+    }
+    
+    .mobile-nav-toggle {
+        left: var(--spacing-md);
+        right: auto;
+    }
+    
+    .fab {
+        left: var(--spacing-lg);
+        right: auto;
+    }
+}
+
+/* Device pixel ratio optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* High DPI optimizations */
+    .task-item,
+    .btn {
+        border-width: 0.5px;
+    }
+    
+    /* Sharper icons and graphics */
+    .icon,
+    .btn-icon {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Landscape orientation optimizations */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    /* Compact header for landscape mobile */
+    .header {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    .header h1 {
+        font-size: var(--font-size-lg);
+    }
+    
+    /* Adjust task list spacing */
+    .task-item {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+}
+
+/* Very small screens (like smartwatches) */
+@media screen and (max-width: 280px) {
+    .header h1 {
+        font-size: var(--font-size-base);
+    }
+    
+    .task-item {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    .btn {
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+}
+
+/* Very large screens optimization */
+@media screen and (min-width: 1920px) {
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .task-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+}
+
+/* Foldable devices support */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    /* Tablet portrait optimizations */
+    .task-list {
+        columns: 2;
+        column-gap: var(--spacing-lg);
+    }
+    
+    .task-item {
+        break-inside: avoid;
+        margin-bottom: var(--spacing-sm);
+    }
+}
+
+/* Gaming console browsers (approximate detection) */
+@media screen and (min-width: 1280px) and (min-height: 720px) and (max-width: 1920px) and (max-height: 1080px) {
+    /* Larger text and buttons for TV viewing distance */
+    body {
+        font-size: var(--font-size-lg);
+    }
+    
+    .btn,
+    .task-item {
+        font-size: var(--font-size-lg);
+        padding: var(--spacing-lg);
+    }
+    
+    /* Enhanced focus indicators for D-pad navigation */
+    .task-item:focus,
+    .btn:focus {
+        outline: 4px solid var(--primary-color);
+        outline-offset: 4px;
+    }
+}

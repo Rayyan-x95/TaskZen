@@ -1,0 +1,89 @@
+/* Light Theme (Default) */
+.theme-light {
+    --primary-color: #4a90e2;
+    --secondary-color: #63b3ed;
+    --success-color: #48bb78;
+    --danger-color: #f56565;
+    --warning-color: #ed8936;
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --background-primary: #ffffff;
+    --background-secondary: #f7fafc;
+    --border-color: #e2e8f0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Theme */
+.theme-dark {
+    --primary-color: #63b3ed;
+    --secondary-color: #4a90e2;
+    --success-color: #48bb78;
+    --danger-color: #f56565;
+    --warning-color: #ed8936;
+    --text-primary: #f7fafc;
+    --text-secondary: #e2e8f0;
+    --background-primary: #1a202c;
+    --background-secondary: #2d3748;
+    --border-color: #4a5568;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* High Contrast Theme */
+.theme-high-contrast {
+    --primary-color: #ffffff;
+    --secondary-color: #ffffff;
+    --success-color: #ffffff;
+    --danger-color: #ffffff;
+    --warning-color: #ffffff;
+    --text-primary: #ffffff;
+    --text-secondary: #ffffff;
+    --background-primary: #000000;
+    --background-secondary: #1a1a1a;
+    --border-color: #ffffff;
+    --shadow-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Custom Theme Template */
+.theme-custom {
+    --primary-color: var(--custom-primary, #4a90e2);
+    --secondary-color: var(--custom-secondary, #63b3ed);
+    --success-color: var(--custom-success, #48bb78);
+    --danger-color: var(--custom-danger, #f56565);
+    --warning-color: var(--custom-warning, #ed8936);
+    --text-primary: var(--custom-text-primary, #2d3748);
+    --text-secondary: var(--custom-text-secondary, #4a5568);
+    --background-primary: var(--custom-bg-primary, #ffffff);
+    --background-secondary: var(--custom-bg-secondary, #f7fafc);
+    --border-color: var(--custom-border, #e2e8f0);
+    --shadow-color: var(--custom-shadow, rgba(0, 0, 0, 0.1));
+}
+
+/* Priority Colors */
+[data-priority="urgent"] {
+    border-left: 4px solid var(--danger-color);
+}
+
+[data-priority="high"] {
+    border-left: 4px solid var(--warning-color);
+}
+
+[data-priority="medium"] {
+    border-left: 4px solid var(--primary-color);
+}
+
+[data-priority="low"] {
+    border-left: 4px solid var(--success-color);
+}
+
+/* Task Status Colors */
+[data-status="todo"] {
+    border-top: 4px solid var(--primary-color);
+}
+
+[data-status="in-progress"] {
+    border-top: 4px solid var(--warning-color);
+}
+
+[data-status="done"] {
+    border-top: 4px solid var(--success-color);
+}

@@ -1,0 +1,104 @@
+/* Third-party OAuth sign up styles */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: rgba(245, 247, 250, 0.98);
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 2000;
+}
+.auth-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    padding: 2.5rem 2rem 2rem 2rem;
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+.auth-card h2 {
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    color: var(--text-primary, #222);
+}
+.third-party-signup {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.oauth-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: #f5f5f5;
+    color: #222;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.oauth-btn.google { border: 1px solid #e0e0e0; }
+.oauth-btn.microsoft { border: 1px solid #e0e0e0; }
+.oauth-btn.apple { border: 1px solid #e0e0e0; }
+.oauth-btn:hover {
+    background: #e9ecef;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.oauth-icon {
+    width: 24px;
+    height: 24px;
+}
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0 1rem 0;
+    color: #aaa;
+    font-size: 0.95rem;
+}
+.divider span {
+    background: #fff;
+    padding: 0 1rem;
+    z-index: 1;
+}
+.divider:before, .divider:after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+    margin: 0 0.5rem;
+}
+#continueWithoutAccount {
+    margin-top: 0.5rem;
+    background: #f5f5f5;
+    color: #555;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#continueWithoutAccount:hover {
+    background: #e9ecef;
+}
+body.auth-required > *:not(.auth-container) {
+    filter: blur(2px) grayscale(0.2);
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+@media (max-width: 500px) {
+    .auth-card {
+        padding: 1.5rem 0.5rem 1rem 0.5rem;
+        max-width: 95vw;
+    }
+}
