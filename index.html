@@ -1,560 +1,1921 @@
+<!--
+TaskZen — Material 3 Web
+Single-file Task Manager SPA
+All code, CSS, and logic in one HTML file. No external dependencies required.
+Open in any modern browser.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskZen - Modern Task Manager</title>
-    <meta name="description" content="A modern, offline-first task manager with advanced productivity features">
-    <meta name="keywords" content="task manager, productivity, PWA, offline, mobile">
-    <meta name="author" content="TaskZen">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskZen — Material 3 Web</title>
+  <!-- Material 3 Dynamic Theme CSS Variables -->
+  <style id="material-theme">
+    :root {
+      --seed: #4a90e2;
+      --primary: #4a90e2;
+      --on-primary: #fff;
+      --secondary: #63b3ed;
+      --on-secondary: #fff;
+      --surface: #fff;
+      --on-surface: #222;
+      --background: #f7f7fa;
+      --error: #f56565;
+      --on-error: #fff;
+      --outline: #e2e8f0;
+      --surface-variant: #e0e7ef;
+      --elevation-1: 0 1px 4px rgba(0,0,0,0.08);
+      --elevation-2: 0 4px 16px rgba(0,0,0,0.10);
+      --radius: 16px;
+      --font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+      --transition: 0.3s cubic-bezier(.4,0,.2,1);
+      --md3-shadow: 0 1.5px 8px rgba(60,60,60,0.08);
+      --md3-glass: rgba(255,255,255,0.18);
+      --md3-glass-dark: rgba(34,40,49,0.38);
+      --md3-blur: blur(16px) saturate(180%);
+      --md3-outline: 1.5px solid rgba(255,255,255,0.25);
+    }
+    body {
+      font-family: var(--font-family);
+      background: var(--background);
+      color: var(--on-surface);
+      margin: 0;
+      min-height: 100vh;
+      transition: background var(--transition);
+    }
+    .md3-surface {
+      background: var(--surface);
+      color: var(--on-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--md3-shadow);
+      transition: box-shadow var(--transition), background var(--transition);
+    }
+    .md3-glass {
+      background: var(--md3-glass);
+      -webkit-backdrop-filter: var(--md3-blur);
+      backdrop-filter: var(--md3-blur);
+      border-radius: var(--radius);
+      border: var(--md3-outline);
+      box-shadow: var(--md3-shadow);
+    }
+    .md3-glass-dark {
+      background: var(--md3-glass-dark);
+      color: #f5f6fa;
+      border: 1.5px solid rgba(34,40,49,0.18);
+    }
+    /* Responsive Layout */
+    @media (max-width: 600px) {
+      .md3-main { padding: 0.5rem; }
+      .md3-header { font-size: 1.2rem; }
+    }
+    @media (min-width: 601px) {
+      .md3-main { padding: 2rem; }
+      .md3-header { font-size: 2rem; }
+    }
+    /* Accessibility & High Contrast */
+    .high-contrast {
+      background: #000 !important;
+      color: #fff !important;
+      border-color: #fff !important;
+    }
+    .md3-focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    /* Material 3 Typography */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-family);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 0.5em 0 0.2em 0;
+    }
+    .md3-btn {
+      font-family: var(--font-family);
+      font-size: 1rem;
+      border-radius: 100px;
+      border: none;
+      padding: 0.75em 1.5em;
+      background: var(--primary);
+      color: var(--on-primary);
+      box-shadow: var(--md3-shadow);
+      cursor: pointer;
+      transition: background var(--transition), box-shadow var(--transition);
+      margin: 0.25em;
+    }
+    .md3-btn.secondary {
+      background: var(--secondary);
+      color: var(--on-secondary);
+    }
+    .md3-btn.outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    .md3-btn:focus {
+      outline: 2px solid var(--primary);
+    }
+    /* Animated transitions */
+    .fade-enter {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    .fade-enter-active {
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .fade-exit {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .fade-exit-active {
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    /* Container transform, shared axis, etc. */
+    .container-transform {
+      transition: all 0.4s cubic-bezier(.4,0,.2,1);
+    }
+    /* Mini widget floating view */
+    .md3-widget {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 1000;
+      background: var(--surface-variant);
+      border-radius: var(--radius);
+      box-shadow: var(--md3-shadow);
+      padding: 1rem;
+      min-width: 220px;
+      max-width: 90vw;
+      font-size: 1rem;
+      display: none;
+    }
+    .md3-widget.show {
+      display: block;
+      animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Toasts */
+    .md3-toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: var(--on-primary);
+      padding: 1em 2em;
+      border-radius: 100px;
+      box-shadow: var(--md3-shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 2000;
+    }
+    .md3-toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Onboarding animation (Lottie-like) */
+    .md3-onboarding {
+      width: 100%;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .md3-onboarding .md3-lottie {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      box-shadow: var(--md3-shadow);
+      position: relative;
+      overflow: hidden;
+      animation: lottiePulse 2s infinite;
+    }
+    @keyframes lottiePulse {
+      0%, 100% { box-shadow: 0 0 0 0 var(--primary); }
+      50% { box-shadow: 0 0 32px 8px var(--secondary); }
+    }
+    .md3-lottie-dot {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--surface);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      animation: lottieDot 1.2s infinite;
+    }
+    @keyframes lottieDot {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.2); }
+    }
+  </style>
+  <!-- Inline all app CSS below -->
+  <style id="app-css">
+    /* Layout & Navigation */
+    .md3-app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .md3-header {
+      background: var(--surface);
+      box-shadow: var(--elevation-1);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .md3-nav {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+    }
+    .md3-nav-item {
+      background: transparent;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: background var(--transition);
+      white-space: nowrap;
+    }
+    .md3-nav-item.active {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+    .md3-nav-item:hover:not(.active) {
+      background: var(--surface-variant);
+    }
+    .md3-main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
     
-    <!-- PWA & Mobile Optimization -->
-    <link rel="stylesheet" href="src/css/style.css">
-    <link rel="stylesheet" href="src/css/themes.css">
-    <link rel="stylesheet" href="src/css/mobile-enhancements.css">
-    <link rel="stylesheet" href="src/css/enhanced-task.css">
-    <link rel="stylesheet" href="src/css/calendar.css">
-    <link rel="stylesheet" href="src/css/analytics.css">
-    <link rel="stylesheet" href="src/css/collaboration.css">
-        <link rel="stylesheet" href="src/css/smartAutomation.css">
-    <link rel="stylesheet" href="src/css/oauth.css">
-    <link rel="stylesheet" href="src/css/browser-compatibility.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="src/assets/icons/favicon.png">
+    /* Cards & Forms */
+    .md3-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--elevation-1);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+    .md3-card:hover {
+      box-shadow: var(--elevation-2);
+      transform: translateY(-2px);
+    }
+    .md3-input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid var(--outline);
+      border-radius: var(--radius);
+      background: var(--surface);
+      font-family: var(--font-family);
+      font-size: 1rem;
+      transition: border-color var(--transition);
+    }
+    .md3-input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    .md3-textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .md3-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%23666'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 3rem;
+    }
     
-    <!-- iOS Safari -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="TaskZen">
-    <link rel="apple-touch-icon" href="src/assets/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="src/assets/icons/icon-192x192.png">
+    /* Task Items */
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--elevation-1);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .task-item:hover {
+      box-shadow: var(--elevation-2);
+      transform: translateX(4px);
+    }
+    .task-item.completed {
+      opacity: 0.7;
+    }
+    .task-checkbox {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--outline);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .task-checkbox.checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .task-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .task-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--on-surface);
+    }
+    .task-description {
+      color: var(--on-surface);
+      opacity: 0.8;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .task-meta {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+    .task-priority {
+      padding: 0.25rem 0.5rem;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    .priority-urgent { background: #ffebee; color: #c62828; }
+    .priority-high { background: #fff3e0; color: #f57c00; }
+    .priority-medium { background: #e8f5e8; color: #2e7d32; }
+    .priority-low { background: #e3f2fd; color: #1565c0; }
     
-    <!-- Android Chrome -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#4a90e2">
-    <meta name="msapplication-TileColor" content="#4a90e2">
-    <meta name="msapplication-TileImage" content="src/assets/icons/icon-144x144.png">
+    /* Kanban Board */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      height: calc(100vh - 200px);
+    }
+    .kanban-column {
+      background: var(--surface-variant);
+      border-radius: var(--radius);
+      padding: 1rem;
+      min-height: 400px;
+    }
+    .kanban-header {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    .kanban-tasks {
+      min-height: 200px;
+      border: 2px dashed transparent;
+      border-radius: var(--radius);
+      transition: border-color var(--transition);
+    }
+    .kanban-tasks.drag-over {
+      border-color: var(--primary);
+      background: rgba(74, 144, 226, 0.1);
+    }
     
-    <!-- Performance & SEO -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    /* Calendar View */
+    .calendar-container {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--elevation-1);
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: var(--outline);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .calendar-day {
+      background: var(--surface);
+      padding: 1rem;
+      min-height: 100px;
+      position: relative;
+    }
+    .calendar-day.other-month {
+      opacity: 0.5;
+    }
+    .calendar-day.today {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+    .calendar-task {
+      background: var(--secondary);
+      color: var(--on-secondary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      cursor: pointer;
+    }
+    
+    /* Focus Mode */
+    .focus-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--surface);
+      z-index: 1000;
+      display: none;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+    .focus-mode.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .focus-task {
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    /* Pomodoro Timer */
+    .pomodoro-container {
+      text-align: center;
+      padding: 2rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--elevation-1);
+    }
+    .pomodoro-timer {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 1rem 0;
+    }
+    .pomodoro-controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    
+    /* Command Palette */
+    .command-palette {
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 600px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--elevation-2);
+      z-index: 2000;
+      display: none;
+    }
+    .command-palette.active {
+      display: block;
+      animation: slideDown 0.3s;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translate(-50%, -20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    .command-input {
+      width: 100%;
+      padding: 1.5rem;
+      border: none;
+      font-size: 1.2rem;
+      background: transparent;
+    }
+    .command-results {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .command-item {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--outline);
+      transition: background var(--transition);
+    }
+    .command-item:hover,
+    .command-item.selected {
+      background: var(--surface-variant);
+    }
+    
+    /* Dark Mode */
+    .theme-dark {
+      --surface: #1e1e1e;
+      --on-surface: #e0e0e0;
+      --background: #121212;
+      --surface-variant: #2c2c2c;
+      --outline: #404040;
+      --primary: #bb86fc;
+      --on-primary: #000;
+      --secondary: #03dac6;
+      --on-secondary: #000;
+    }
+    
+    /* Animations */
+    @keyframes taskComplete {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .task-complete-animation {
+      animation: taskComplete 0.5s;
+    }
+    
+    /* Modal Styles */
+    .md3-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .md3-modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+    }
+    .md3-modal-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+      width: 500px;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+    .view-content {
+      display: none;
+    }
+    .view-content.active {
+      display: block;
+    }
+    
+    /* Layout utility classes */
+    .flex-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .grid-auto {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .flex-end {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+    .search-input {
+      width: 200px;
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .stat-primary {
+      color: var(--primary);
+    }
+    .stat-secondary {
+      color: var(--secondary);
+    }
+    .mb-1 {
+      margin-bottom: 1rem;
+    }
+    .hidden {
+      display: none;
+    }
+    
+    /* Task actions */
+    .task-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .task-action-btn {
+      padding: 0.5rem;
+    }
+    
+    /* Toast notifications */
+    .md3-toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface-container);
+      color: var(--on-surface);
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: var(--elevation-3);
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.3s var(--easing-standard);
+      max-width: 90%;
+      text-align: center;
+    }
+    .md3-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .md3-main { padding: 1rem; }
+      .md3-header { padding: 1rem; flex-direction: column; gap: 1rem; }
+      .md3-nav { order: 2; }
+      .kanban-board {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .calendar-day {
+        min-height: 60px;
+        padding: 0.5rem;
+      }
+      .command-palette {
+        width: 95%;
+        top: 5%;
+      }
+      .md3-modal-content {
+        width: 95%;
+        margin: 1rem;
+        padding: 1rem;
+      }
+    }
+  </style>
 </head>
-<body class="theme-light">
-    <!-- Third-Party Sign Up -->
-    <div class="auth-container" id="authContainer">
-    <div class="auth-card glass">
-            <h2>Sign up or Log in to TaskZen</h2>
-            <div class="third-party-signup">
-                <button class="oauth-btn google" id="googleSignUp">
-                    <img src="src/assets/icons/google.svg" alt="Google logo" class="oauth-icon" />
-                    Sign up with Google
-                </button>
-                <button class="oauth-btn microsoft" id="microsoftSignUp">
-                    <img src="src/assets/icons/microsoft.svg" alt="Microsoft logo" class="oauth-icon" />
-                    Sign up with Microsoft
-                </button>
-                <button class="oauth-btn apple" id="appleSignUp">
-                    <img src="src/assets/icons/apple.svg" alt="Apple logo" class="oauth-icon" />
-                    Sign up with Apple
-                </button>
-            </div>
-            <div class="divider"><span>or</span></div>
-            <button class="btn secondary" id="continueWithoutAccount">Continue without account</button>
-        </div>
-    </div>
-    <header class="app-header">
-        <div class="header-container">
-            <div class="logo-container">
-                <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
-                    <span class="hamburger"></span>
-                    <span class="hamburger"></span>
-                    <span class="hamburger"></span>
-                </button>
-                <h1>TaskZen</h1>
-                <button id="themeToggle" aria-label="Toggle theme">🌙</button>
-            </div>
-            <nav class="main-nav" id="mainNav" role="tablist">
-                <button class="nav-item active" data-view="tasks" role="tab" aria-selected="true">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-label">Tasks</span>
-                </button>
-                <button class="nav-item" data-view="kanban" role="tab" aria-selected="false">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-label">Kanban</span>
-                </button>
-                <button class="nav-item" data-view="calendar" role="tab" aria-selected="false">
-                    <span class="nav-icon">📅</span>
-                    <span class="nav-label">Calendar</span>
-                </button>
-                <button class="nav-item" data-view="analytics" role="tab" aria-selected="false">
-                    <span class="nav-icon">📈</span>
-                    <span class="nav-label">Analytics</span>
-                </button>
-                <button class="nav-item" data-view="collaboration" role="tab" aria-selected="false">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-label">Team</span>
-                </button>
-                    <button class="nav-item" data-view="smartAutomation" role="tab" aria-selected="false">
-                        <span class="nav-icon">🤖</span>
-                        <span class="nav-label">AI Assistant</span>
-                    </button>
-            </nav>
-        </div>
+<body>
+  <!-- App root -->
+  <div id="app-root" class="md3-app">
+    <!-- Header with navigation -->
+    <header class="md3-header">
+      <div>
+        <h1 class="md3-header">TaskZen — Material 3 Web</h1>
+        <nav class="md3-nav" role="navigation">
+          <button class="md3-nav-item active" data-view="tasks" aria-label="Tasks view">📋 Tasks</button>
+          <button class="md3-nav-item" data-view="kanban" aria-label="Kanban board">📊 Kanban</button>
+          <button class="md3-nav-item" data-view="calendar" aria-label="Calendar view">📅 Calendar</button>
+          <button class="md3-nav-item" data-view="focus" aria-label="Focus mode">🎯 Focus</button>
+          <button class="md3-nav-item" data-view="analytics" aria-label="Analytics">📈 Analytics</button>
+        </nav>
+      </div>
+      <div class="flex-row">
+        <button id="themeToggle" class="md3-btn outline" aria-label="Toggle dark mode">🌙</button>
+        <button id="settingsBtn" class="md3-btn outline" aria-label="Settings">⚙️</button>
+        <button id="addTaskBtn" class="md3-btn" aria-label="Add new task">+ Add Task</button>
+      </div>
     </header>
 
-    <main class="app-main">
-        <!-- Task Management Interface -->
-        <section id="tasksView" class="view active" role="tabpanel" aria-labelledby="tasks-tab">
-            <div class="task-controls glass">
-                <div class="primary-actions">
-                    <button id="addTask" class="btn primary fab-style" aria-label="Add new task">
-                        <span class="btn-icon">+</span>
-                        <span class="btn-text">New Task</span>
-                    </button>
-                    <button id="bulkActions" class="btn secondary hidden">
-                        <span class="btn-icon">⚡</span>
-                        <span class="btn-text">Actions</span>
-                    </button>
-                </div>
-                <div class="task-filters">
-                    <div class="filter-group">
-                        <select id="priorityFilter" aria-label="Filter by priority" class="filter-select">
-                            <option value="">All Priorities</option>
-                            <option value="low">🟢 Low</option>
-                            <option value="medium">🟡 Medium</option>
-                            <option value="high">🟠 High</option>
-                            <option value="urgent">🔴 Urgent</option>
-                        </select>
-                        <select id="statusFilter" aria-label="Filter by status" class="filter-select">
-                            <option value="">All Status</option>
-                            <option value="todo">📝 To Do</option>
-                            <option value="in-progress">⏳ In Progress</option>
-                            <option value="done">✅ Done</option>
-                        </select>
-                    </div>
-                    <div class="search-group">
-                        <input type="text" id="searchTasks" placeholder="Search tasks..." aria-label="Search tasks" class="search-input">
-                        <button id="voiceSearch" class="voice-btn" aria-label="Voice search" title="Voice search">
-                            🎤
-                        </button>
-                    </div>
-                </div>
+    <!-- Main content area -->
+    <main class="md3-main" role="main">
+      <!-- Tasks List View -->
+      <div id="tasks-view" class="view-content active">
+        <div class="md3-card">
+          <div class="flex-between">
+            <h2>My Tasks</h2>
+            <div class="flex-row">
+              <input type="text" id="searchInput" class="md3-input search-input" placeholder="Search tasks..." aria-label="Search tasks">
+              <select id="filterSelect" class="md3-input md3-select" aria-label="Filter tasks">
+                <option value="all">All Tasks</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="overdue">Overdue</option>
+              </select>
+              <select id="sortSelect" class="md3-input md3-select" aria-label="Sort tasks">
+                <option value="created">Date Created</option>
+                <option value="due">Due Date</option>
+                <option value="priority">Priority</option>
+              </select>
             </div>
-            <div class="task-view-options">
-                <button class="view-toggle active" data-view="list" aria-label="List view">📋</button>
-                <button class="view-toggle" data-view="grid" aria-label="Grid view">⊞</button>
-                <button class="view-toggle" data-view="compact" aria-label="Compact view">☰</button>
+          </div>
+          <div id="tasks-container" role="list" aria-label="Task list"></div>
+        </div>
+      </div>
+
+      <!-- Kanban Board View -->
+      <div id="kanban-view" class="view-content">
+        <div class="kanban-board">
+          <div class="kanban-column">
+            <div class="kanban-header">📝 To Do</div>
+            <div class="kanban-tasks" data-status="todo" role="region" aria-label="Todo tasks"></div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-header">⏳ In Progress</div>
+            <div class="kanban-tasks" data-status="in-progress" role="region" aria-label="In progress tasks"></div>
+          </div>
+          <div class="kanban-column">
+            <div class="kanban-header">✅ Done</div>
+            <div class="kanban-tasks" data-status="done" role="region" aria-label="Completed tasks"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar View -->
+      <div id="calendar-view" class="view-content">
+        <div class="calendar-container md3-glass">
+          <div class="calendar-header">
+            <button id="prevMonth" class="md3-btn outline" aria-label="Previous month">‹</button>
+            <h2 id="currentMonth"></h2>
+            <button id="nextMonth" class="md3-btn outline" aria-label="Next month">›</button>
+          </div>
+          <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="Calendar"></div>
+        </div>
+      </div>
+
+      <!-- Focus Mode View -->
+      <div id="focus-view" class="view-content">
+        <div class="focus-mode">
+          <div class="focus-task">
+            <h2>Focus Mode</h2>
+            <p>Distraction-free task completion</p>
+            <div id="currentFocusTask"></div>
+            <div class="pomodoro-container md3-glass">
+              <h3>Pomodoro Timer</h3>
+              <div class="pomodoro-timer" id="pomodoroTimer">25:00</div>
+              <div class="pomodoro-controls">
+                <button id="pomodoroStart" class="md3-btn">Start</button>
+                <button id="pomodoroStop" class="md3-btn secondary">Stop</button>
+                <button id="pomodoroReset" class="md3-btn outline">Reset</button>
+              </div>
             </div>
-            <div id="taskList" class="task-list" role="list"></div>
-            <div id="emptyState" class="empty-state hidden">
-                <div class="empty-icon">📝</div>
-                <h3>No tasks yet</h3>
-                <p>Create your first task to get started with TaskZen</p>
-                <button class="btn primary" onclick="document.getElementById('addTask').click()">Create Task</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics View -->
+      <div id="analytics-view" class="view-content">
+        <div class="md3-card">
+          <h2>Productivity Analytics</h2>
+          <div class="grid-auto">
+            <div class="md3-card">
+              <h3>Tasks Completed</h3>
+              <div class="stat-number stat-primary" id="completedCount">0</div>
             </div>
-        </section>
-
-        <!-- Kanban Board View -->
-        <section id="kanbanView" class="view">
-            <div class="kanban-board glass">
-                <div class="kanban-column" data-status="todo">
-                    <h3>To Do</h3>
-                    <div class="kanban-tasks"></div>
-                </div>
-                <div class="kanban-column" data-status="in-progress">
-                    <h3>In Progress</h3>
-                    <div class="kanban-tasks"></div>
-                </div>
-                <div class="kanban-column" data-status="done">
-                    <h3>Done</h3>
-                    <div class="kanban-tasks"></div>
-                </div>
+            <div class="md3-card">
+              <h3>Current Streak</h3>
+              <div class="stat-number stat-secondary" id="streakCount">0</div>
             </div>
-        </section>
-
-        <!-- Calendar View -->
-        <section id="calendarView" class="view">
-            <div class="calendar-container glass">
-                <div class="calendar-header">
-                    <div class="calendar-nav">
-                        <button id="prevMonth" aria-label="Previous period">‹</button>
-                        <button id="todayBtn" class="today-btn">Today</button>
-                        <button id="nextMonth" aria-label="Next period">›</button>
-                    </div>
-                    <div class="current-period" id="currentMonth" aria-live="polite"></div>
-                    <div class="view-toggles">
-                        <button id="monthView" class="view-toggle active" aria-label="Month view">Month</button>
-                        <button id="weekView" class="view-toggle" aria-label="Week view">Week</button>
-                        <button id="dayView" class="view-toggle" aria-label="Day view">Day</button>
-                    </div>
-                </div>
-                <div class="calendar-grid" role="grid" aria-label="Calendar"></div>
+            <div class="md3-card">
+              <h3>Total XP</h3>
+              <div class="stat-number stat-primary" id="totalXP">0</div>
             </div>
-        </section>
-
-        <!-- Analytics View -->
-        <section id="analyticsView" class="view">
-            <div class="analytics-header glass">
-                <div class="analytics-controls">
-                    <select id="analyticsPeriod" class="filter-select">
-                        <option value="7">Last 7 days</option>
-                        <option value="30" selected>Last 30 days</option>
-                        <option value="90">Last 90 days</option>
-                        <option value="365">Last year</option>
-                    </select>
-                    <button id="refreshAnalytics" class="btn secondary">
-                        <span class="btn-icon">🔄</span>
-                        <span class="btn-text">Refresh</span>
-                    </button>
-                    <button id="exportData" class="btn primary">
-                        <span class="btn-icon">📊</span>
-                        <span class="btn-text">Export</span>
-                    </button>
-                </div>
+            <div class="md3-card">
+              <h3>Focus Time</h3>
+              <div class="stat-number stat-secondary" id="focusTime">0h</div>
             </div>
-            
-            <!-- Overview Cards -->
-            <div id="analyticsOverview" class="analytics-overview">
-                <!-- Overview cards will be populated by JavaScript -->
-            </div>
-            
-            <!-- Charts Grid -->
-            <div class="analytics-grid">
-                <div class="analytics-card chart-card">
-                    <div id="productivityChart">
-                        <!-- Productivity chart -->
-                    </div>
-                </div>
-                
-                <div class="analytics-card chart-card">
-                    <div id="completionTrends">
-                        <!-- Completion trends -->
-                    </div>
-                </div>
-                
-                <div class="analytics-card chart-card">
-                    <div id="priorityDistribution">
-                        <!-- Priority distribution -->
-                    </div>
-                </div>
-                
-                <div class="analytics-card chart-card">
-                    <div id="timeAnalysis">
-                        <!-- Time analysis -->
-                    </div>
-                </div>
-                
-                <div class="analytics-card chart-card">
-                    <div id="goalsProgress">
-                        <!-- Goals progress -->
-                    </div>
-                </div>
-                
-                <div class="analytics-card chart-card">
-                    <div id="categoryBreakdown">
-                        <!-- Category breakdown -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Collaboration View -->
-        <section id="collaborationView" class="view">
-            <div class="collaboration-view glass">
-                <div class="collaboration-main">
-                    <!-- Workspace Info -->
-                    <div id="workspaceInfo">
-                        <div class="workspace-placeholder">
-                            <div class="placeholder-content">
-                                <h3>🚀 Get Started with Team Collaboration</h3>
-                                <p>Create or join a workspace to collaborate with your team in real-time.</p>
-                                <div class="placeholder-actions">
-                                    <button id="createWorkspace" class="btn primary">
-                                        <span class="btn-icon">➕</span>
-                                        <span class="btn-text">Create Workspace</span>
-                                    </button>
-                                    <button id="joinWorkspace" class="btn secondary">
-                                        <span class="btn-icon">🔗</span>
-                                        <span class="btn-text">Join Workspace</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Shared Tasks -->
-                    <div class="shared-tasks-section">
-                        <div class="section-header">
-                            <h3>📋 Shared Tasks</h3>
-                            <button class="btn secondary" id="refreshSharedTasks">
-                                <span class="btn-icon">🔄</span>
-                                <span class="btn-text">Refresh</span>
-                            </button>
-                        </div>
-                        <div id="sharedTasksList" class="shared-tasks-list">
-                            <!-- Shared tasks will be populated here -->
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="collaboration-sidebar">
-                    <!-- Connection Status -->
-                    <div id="connectionStatus" class="connection-status disconnected">Disconnected</div>
-                    
-                    <!-- Connected Users -->
-                    <div id="connectedUsers">
-                        <!-- Connected users will be populated here -->
-                    </div>
-                    
-                    <!-- Recent Activity -->
-                    <div class="recent-activity">
-                        <h4>📈 Recent Activity</h4>
-                        <div id="activityFeed" class="activity-feed">
-                            <div class="activity-item">
-                                <div class="activity-icon">✅</div>
-                                <div class="activity-content">
-                                    <div class="activity-text">Task completed</div>
-                                    <div class="activity-time">2 min ago</div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">💬</div>
-                                <div class="activity-content">
-                                    <div class="activity-text">New comment added</div>
-                                    <div class="activity-time">5 min ago</div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">👤</div>
-                                <div class="activity-content">
-                                    <div class="activity-text">User joined workspace</div>
-                                    <div class="activity-time">1 hour ago</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-            <!-- Smart Automation View -->
-            <section id="smartAutomation" class="view-section">
-                <div class="automation-header glass">
-                    <h1>🤖 Smart Automation</h1>
-                    <p>Intelligent task management with AI-powered suggestions and automation</p>
-                </div>
-            
-                <div class="automation-nav">
-                    <button class="automation-tab active" data-tab="suggestions">
-                        Smart Suggestions
-                    </button>
-                    <button class="automation-tab" data-tab="templates">
-                        Templates
-                    </button>
-                    <button class="automation-tab" data-tab="automation">
-                        Automation Rules
-                    </button>
-                    <button class="automation-tab" data-tab="ai-organization">
-                        AI Organization
-                    </button>
-                </div>
-
-                <!-- Smart Suggestions Tab -->
-                <div id="suggestions" class="automation-section active">
-                    <div class="suggestions-header">
-                        <h2>Smart Suggestions</h2>
-                        <button id="refreshSuggestions" class="refresh-suggestions-btn">
-                            <i class="fas fa-sync"></i>
-                            Refresh Suggestions
-                        </button>
-                    </div>
-                
-                    <div class="automation-analytics">
-                        <div class="analytics-grid">
-                            <div class="analytics-item">
-                                <span class="analytics-value" id="suggestionsApplied">0</span>
-                                <span class="analytics-label">Suggestions Applied</span>
-                            </div>
-                            <div class="analytics-item">
-                                <span class="analytics-value" id="timeSaved">0h</span>
-                                <span class="analytics-label">Time Saved</span>
-                            </div>
-                            <div class="analytics-item">
-                                <span class="analytics-value" id="automationScore">0%</span>
-                                <span class="analytics-label">Automation Score</span>
-                            </div>
-                            <div class="analytics-item">
-                                <span class="analytics-value" id="patternConfidence">0%</span>
-                                <span class="analytics-label">Pattern Confidence</span>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <div id="smartSuggestions">
-                        <!-- Smart suggestions will be rendered here -->
-                    </div>
-                </div>
-
-                <!-- Templates Tab -->
-                <div id="templates" class="automation-section">
-                    <div class="template-controls">
-                        <button id="createTemplate" class="btn primary">
-                            <i class="fas fa-plus"></i>
-                            Create Template
-                        </button>
-                        <button id="useTemplate" class="btn secondary">
-                            <i class="fas fa-rocket"></i>
-                            Use Template
-                        </button>
-                    </div>
-                
-                    <div id="templatesContainer">
-                        <!-- Templates will be rendered here -->
-                    </div>
-                </div>
-
-                <!-- Automation Rules Tab -->
-                <div id="automation" class="automation-section">
-                    <div class="automation-rules-header">
-                        <h2>Automation Rules</h2>
-                        <button id="manageAutomation" class="btn primary">
-                            <i class="fas fa-cog"></i>
-                            Create Rule
-                        </button>
-                    </div>
-                
-                    <div id="automationRules">
-                        <!-- Automation rules will be rendered here -->
-                    </div>
-                </div>
-
-                <!-- AI Organization Tab -->
-                <div id="ai-organization" class="automation-section">
-                    <div class="ai-organization">
-                        <h2>🧠 AI-Powered Organization</h2>
-                        <p>Let artificial intelligence analyze your tasks and suggest optimal organization strategies based on your work patterns and productivity data.</p>
-                    
-                        <button id="organizeAI" class="ai-organize-btn">
-                            <span class="icon">🔮</span>
-                            Analyze & Organize My Tasks
-                        </button>
-                    
-                            <div id="aiOrganizationResults" class="ai-results hidden">
-                            <!-- AI organization results will be rendered here -->
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- Modals will be rendered here by JavaScript components -->
-        <div id="modalContainer"></div>
-    </div>
+          </div>
+        </div>
+      </div>
     </main>
+  </div>
 
-    <!-- Pomodoro Timer -->
-    <div id="pomodoroWidget" class="widget collapsed">
-        <div class="widget-header">
-            <h3>Pomodoro Timer</h3>
-            <button class="toggle-widget">▼</button>
+  <!-- Task Form Modal -->
+  <div id="taskModal" class="md3-modal hidden" role="dialog" aria-labelledby="taskModalTitle">
+    <div class="md3-modal-backdrop" onclick="closeTaskModal()"></div>
+    <div class="md3-modal-content md3-glass">
+      <h2 id="taskModalTitle">Add New Task</h2>
+      <form id="taskForm">
+        <div class="mb-1">
+          <label for="taskTitle">Title *</label>
+          <input type="text" id="taskTitle" class="md3-input" required aria-required="true">
         </div>
-        <div class="widget-content">
-            <div id="pomodoroTimer" class="timer">25:00</div>
-            <div class="timer-controls">
-                <button id="startPomodoro" class="btn">Start</button>
-                <button id="resetPomodoro" class="btn">Reset</button>
-            </div>
+        <div class="mb-1">
+          <label for="taskDescription">Description</label>
+          <textarea id="taskDescription" class="md3-input md3-textarea" placeholder="Task details..."></textarea>
         </div>
+        <div class="grid-2col">
+          <div>
+            <label for="taskDueDate">Due Date</label>
+            <input type="date" id="taskDueDate" class="md3-input">
+          </div>
+          <div>
+            <label for="taskPriority">Priority</label>
+            <select id="taskPriority" class="md3-input md3-select">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-1">
+          <label for="taskTags">Tags (comma separated)</label>
+          <input type="text" id="taskTags" class="md3-input" placeholder="work, personal, urgent">
+        </div>
+        <div class="mb-1">
+          <label for="taskEstimate">Estimated Time (minutes)</label>
+          <input type="number" id="taskEstimate" class="md3-input" min="1" placeholder="60">
+        </div>
+        <div class="flex-end">
+          <button type="button" onclick="closeTaskModal()" class="md3-btn outline">Cancel</button>
+          <button type="submit" class="md3-btn">Save Task</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <!-- Task Modal -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <h2>Add/Edit Task</h2>
-            <form id="taskForm">
-                <input type="text" id="taskTitle" placeholder="Task title" required aria-label="Task title">
-                <div class="form-row">
-                    <select id="taskPriority" required aria-label="Task priority">
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                    </select>
-                    <input type="date" id="taskDueDate" aria-label="Task due date">
-                </div>
-                <textarea id="taskDescription" placeholder="Task description" aria-label="Task description"></textarea>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="taskCategories">Categories</label>
-                        <select id="taskCategories" multiple>
-                            <!-- Categories will be populated dynamically -->
-                        </select>
-                        <button type="button" id="addCategory" class="btn secondary">+ New Category</button>
-                    </div>
-                    <div class="form-group">
-                        <label for="taskTags">Tags</label>
-                        <input type="text" id="taskTags" placeholder="Enter tags, separated by commas">
-                    </div>
-                </div>
+  <!-- Command Palette -->
+  <div id="commandPalette" class="command-palette">
+    <input type="text" id="commandInput" class="command-input" placeholder="Type a command..." aria-label="Command input">
+    <div id="commandResults" class="command-results"></div>
+  </div>
 
-                <div class="recurring-section">
-                    <label for="taskRecurring">Recurring Task</label>
-                    <select id="taskRecurring">
-                        <option value="">Not recurring</option>
-                        <option value="1 day">Daily</option>
-                        <option value="7 days">Weekly</option>
-                        <option value="30 days">Monthly</option>
-                        <option value="custom">Custom...</option>
-                    </select>
-                </div>
-
-                <div class="subtasks-section">
-                    <h4>Subtasks</h4>
-                    <div id="subtasksList"></div>
-                    <button type="button" id="addSubtask" class="btn secondary">+ Add Subtask</button>
-                </div>
-
-                <div class="notes-section">
-                    <h4>Notes</h4>
-                    <div id="notesList"></div>
-                    <button type="button" id="addNote" class="btn secondary">+ Add Note</button>
-                </div>
-
-                <div class="attachments-section">
-                    <h4>Attachments</h4>
-                    <div id="attachmentsList"></div>
-                    <input type="file" id="attachmentInput" class="visually-hidden" aria-label="Attachment">
-                    <button type="button" id="addAttachment" class="btn secondary">+ Add Attachment</button>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn primary">Save</button>
-                    <button type="button" class="btn secondary" onclick="window.app.taskComponent.closeTaskModal()">Cancel</button>
-                </div>
-            </form>
-        </div>
+  <!-- Toast Notifications -->
+  <div id="md3Toast" class="md3-toast"></div>
+  <!-- Mini widget -->
+  <div class="md3-widget" id="miniWidget" tabindex="0" aria-label="Next due tasks widget"></div>
+  <!-- Toasts -->
+  <div class="md3-toast" id="md3Toast" role="status" aria-live="polite"></div>
+  <!-- Onboarding animation -->
+  <div class="md3-onboarding" id="onboardingAnim" aria-hidden="true">
+    <div class="md3-lottie">
+      <div class="md3-lottie-dot"></div>
     </div>
+  </div>
+  <!-- Complete JavaScript Application -->
+  <script>
+    /* ========================================
+     * TaskZen — Material 3 Web Application
+     * Complete single-file task management app
+     * ======================================== */
 
-    <!-- Third-party Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    // Global app state
+    let tasks = [];
+    let currentView = 'tasks';
+    let currentTaskId = null;
+    let pomodoroInterval = null;
+    let pomodoroTimeLeft = 25 * 60; // 25 minutes
+    let isPomodorRunning = false;
+    let streak = 0;
+    let totalXP = 0;
+    let focusTimeTotal = 0;
 
-    <!-- Application Scripts -->
-    <script type="module" src="src/js/mobile-enhancements.js"></script>
-    <script type="module" src="src/js/app.js"></script>
-    
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.error('ServiceWorker registration failed:', err);
-                    });
-            });
+    // IndexedDB wrapper for persistence
+    class TaskDB {
+      constructor() {
+        this.dbName = 'TaskZenDB';
+        this.version = 1;
+        this.db = null;
+      }
+
+      async init() {
+        return new Promise((resolve, reject) => {
+          if (!window.indexedDB) {
+            console.warn('IndexedDB not supported, falling back to localStorage');
+            this.loadFromLocalStorage();
+            resolve();
+            return;
+          }
+
+          const request = indexedDB.open(this.dbName, this.version);
+          
+          request.onerror = () => {
+            console.warn('IndexedDB error, falling back to localStorage');
+            this.loadFromLocalStorage();
+            resolve();
+          };
+
+          request.onsuccess = (event) => {
+            this.db = event.target.result;
+            this.loadTasks().then(resolve);
+          };
+
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('tasks')) {
+              const taskStore = db.createObjectStore('tasks', { keyPath: 'id' });
+              taskStore.createIndex('status', 'status', { unique: false });
+              taskStore.createIndex('dueDate', 'dueDate', { unique: false });
+            }
+            if (!db.objectStoreNames.contains('settings')) {
+              db.createObjectStore('settings', { keyPath: 'key' });
+            }
+          };
+        });
+      }
+
+      async loadTasks() {
+        if (!this.db) {
+          this.loadFromLocalStorage();
+          return;
         }
-    </script>
+
+        const transaction = this.db.transaction(['tasks'], 'readonly');
+        const store = transaction.objectStore('tasks');
+        const request = store.getAll();
+
+        return new Promise((resolve) => {
+          request.onsuccess = () => {
+            tasks = request.result || [];
+            this.loadSettings();
+            resolve();
+          };
+        });
+      }
+
+      async saveTask(task) {
+        if (!this.db) {
+          this.saveToLocalStorage();
+          return;
+        }
+
+        const transaction = this.db.transaction(['tasks'], 'readwrite');
+        const store = transaction.objectStore('tasks');
+        store.put(task);
+      }
+
+      async deleteTask(taskId) {
+        if (!this.db) {
+          tasks = tasks.filter(t => t.id !== taskId);
+          this.saveToLocalStorage();
+          return;
+        }
+
+        const transaction = this.db.transaction(['tasks'], 'readwrite');
+        const store = transaction.objectStore('tasks');
+        store.delete(taskId);
+      }
+
+      loadFromLocalStorage() {
+        try {
+          tasks = JSON.parse(localStorage.getItem('taskzen-tasks') || '[]');
+          streak = parseInt(localStorage.getItem('taskzen-streak') || '0');
+          totalXP = parseInt(localStorage.getItem('taskzen-xp') || '0');
+          focusTimeTotal = parseInt(localStorage.getItem('taskzen-focus-time') || '0');
+        } catch (e) {
+          console.error('Error loading from localStorage:', e);
+          tasks = [];
+        }
+      }
+
+      saveToLocalStorage() {
+        try {
+          localStorage.setItem('taskzen-tasks', JSON.stringify(tasks));
+          localStorage.setItem('taskzen-streak', streak.toString());
+          localStorage.setItem('taskzen-xp', totalXP.toString());
+          localStorage.setItem('taskzen-focus-time', focusTimeTotal.toString());
+        } catch (e) {
+          console.error('Error saving to localStorage:', e);
+        }
+      }
+
+      async loadSettings() {
+        // Load theme preference
+        const theme = localStorage.getItem('taskzen-theme') || 'light';
+        document.body.classList.toggle('theme-dark', theme === 'dark');
+        updateThemeButton(theme);
+      }
+
+      async saveSetting(key, value) {
+        localStorage.setItem(`taskzen-${key}`, value);
+      }
+    }
+
+    // Initialize database
+    const db = new TaskDB();
+
+    // Task management functions
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function createTask(taskData) {
+      const task = {
+        id: generateId(),
+        title: taskData.title,
+        description: taskData.description || '',
+        dueDate: taskData.dueDate || null,
+        priority: taskData.priority || 'medium',
+        tags: taskData.tags ? taskData.tags.split(',').map(t => t.trim()) : [],
+        estimatedTime: taskData.estimatedTime || null,
+        status: 'todo',
+        completed: false,
+        createdAt: new Date().toISOString(),
+        completedAt: null,
+        timeSpent: 0,
+        comments: [],
+        subtasks: []
+      };
+
+      tasks.push(task);
+      db.saveTask(task);
+      renderCurrentView();
+      showToast(`Task "${task.title}" created!`);
+      
+      // Smart suggestions based on task content
+      provideSuggestions(task);
+      
+      return task;
+    }
+
+    function updateTask(taskId, updates) {
+      const taskIndex = tasks.findIndex(t => t.id === taskId);
+      if (taskIndex === -1) return null;
+
+      const task = { ...tasks[taskIndex], ...updates };
+      tasks[taskIndex] = task;
+      db.saveTask(task);
+      renderCurrentView();
+      
+      return task;
+    }
+
+    function deleteTask(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      tasks = tasks.filter(t => t.id !== taskId);
+      db.deleteTask(taskId);
+      renderCurrentView();
+      showToast(`Task "${task.title}" deleted!`, 'Undo', () => {
+        tasks.push(task);
+        db.saveTask(task);
+        renderCurrentView();
+      });
+    }
+
+    function toggleTaskComplete(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const wasCompleted = task.completed;
+      task.completed = !task.completed;
+      task.completedAt = task.completed ? new Date().toISOString() : null;
+      task.status = task.completed ? 'done' : 'todo';
+
+      // Gamification: Award XP and update streak
+      if (task.completed && !wasCompleted) {
+        const xpGain = calculateXP(task);
+        totalXP += xpGain;
+        updateStreak();
+        showToast(`Task completed! +${xpGain} XP`, 'Undo', () => {
+          task.completed = false;
+          task.completedAt = null;
+          task.status = 'todo';
+          totalXP -= xpGain;
+          updateTask(taskId, task);
+        });
+        
+        // Trigger completion animation
+        const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+        if (taskElement) {
+          taskElement.classList.add('task-complete-animation');
+          setTimeout(() => taskElement.classList.remove('task-complete-animation'), 500);
+        }
+      }
+
+      updateTask(taskId, task);
+    }
+
+    function calculateXP(task) {
+      let baseXP = 10;
+      const priorityMultiplier = {
+        'low': 1,
+        'medium': 1.2,
+        'high': 1.5,
+        'urgent': 2
+      };
+      return Math.floor(baseXP * (priorityMultiplier[task.priority] || 1));
+    }
+
+    function updateStreak() {
+      const today = new Date().toDateString();
+      const lastCompleted = localStorage.getItem('taskzen-last-completed');
+      
+      if (lastCompleted === today) {
+        return; // Already counted for today
+      }
+      
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      if (lastCompleted === yesterday.toDateString()) {
+        streak += 1;
+      } else {
+        streak = 1; // Reset streak
+      }
+      
+      localStorage.setItem('taskzen-last-completed', today);
+      db.saveSetting('streak', streak);
+    }
+
+    // Smart AI suggestions (rule-based heuristics)
+    function provideSuggestions(task) {
+      const suggestions = [];
+      const title = task.title.toLowerCase();
+      const description = task.description.toLowerCase();
+      
+      // Priority suggestions based on keywords
+      const urgentKeywords = ['urgent', 'asap', 'emergency', 'critical', 'deadline'];
+      const highKeywords = ['important', 'meeting', 'presentation', 'client'];
+      
+      if (urgentKeywords.some(keyword => title.includes(keyword) || description.includes(keyword))) {
+        if (task.priority !== 'urgent') {
+          suggestions.push('Consider setting priority to Urgent based on keywords');
+        }
+      } else if (highKeywords.some(keyword => title.includes(keyword) || description.includes(keyword))) {
+        if (task.priority === 'low' || task.priority === 'medium') {
+          suggestions.push('Consider setting priority to High based on content');
+        }
+      }
+      
+      // Due date suggestions
+      if (!task.dueDate && (title.includes('today') || title.includes('tomorrow'))) {
+        const suggestedDate = title.includes('today') ? new Date() : new Date(Date.now() + 86400000);
+        suggestions.push(`Consider setting due date to ${suggestedDate.toDateString()}`);
+      }
+      
+      // Tag suggestions
+      const workKeywords = ['meeting', 'email', 'report', 'project', 'client'];
+      const personalKeywords = ['buy', 'call', 'doctor', 'home', 'family'];
+      
+      if (workKeywords.some(keyword => title.includes(keyword) || description.includes(keyword))) {
+        if (!task.tags.includes('work')) {
+          suggestions.push('Consider adding "work" tag');
+        }
+      }
+      
+      if (personalKeywords.some(keyword => title.includes(keyword) || description.includes(keyword))) {
+        if (!task.tags.includes('personal')) {
+          suggestions.push('Consider adding "personal" tag');
+        }
+      }
+      
+      if (suggestions.length > 0) {
+        showToast(`💡 Suggestions: ${suggestions.join(', ')}`);
+      }
+    }
+
+    // View rendering functions
+    function renderTasksView() {
+      const container = document.getElementById('tasks-container');
+      const filteredTasks = getFilteredTasks();
+      
+      if (filteredTasks.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 3rem; opacity: 0.7;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">📝</div>
+            <h3>No tasks yet</h3>
+            <p>Click "Add Task" to create your first task!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = filteredTasks.map(task => `
+        <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" draggable="true">
+          <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTaskComplete('${task.id}')">
+            ${task.completed ? '✓' : ''}
+          </div>
+          <div class="task-content" onclick="openTaskDetails('${task.id}')">
+            <div class="task-title">${escapeHtml(task.title)}</div>
+            ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
+            <div class="task-meta">
+              <span class="task-priority priority-${task.priority}">${task.priority.toUpperCase()}</span>
+              ${task.dueDate ? `<span>📅 ${formatDate(task.dueDate)}</span>` : ''}
+              ${task.estimatedTime ? `<span>⏱️ ${task.estimatedTime}m</span>` : ''}
+              ${task.tags.length > 0 ? `<span>🏷️ ${task.tags.join(', ')}</span>` : ''}
+            </div>
+          </div>
+          <div class="task-actions">
+            <button onclick="editTask('${task.id}')" class="md3-btn outline task-action-btn" aria-label="Edit task">✏️</button>
+            <button onclick="deleteTask('${task.id}')" class="md3-btn outline task-action-btn" aria-label="Delete task">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add drag and drop listeners
+      addDragListeners();
+    }
+
+    function renderKanbanView() {
+      const todoContainer = document.querySelector('[data-status="todo"]');
+      const inProgressContainer = document.querySelector('[data-status="in-progress"]');
+      const doneContainer = document.querySelector('[data-status="done"]');
+      
+      const todoTasks = tasks.filter(t => t.status === 'todo' && !t.completed);
+      const inProgressTasks = tasks.filter(t => t.status === 'in-progress');
+      const doneTasks = tasks.filter(t => t.status === 'done' || t.completed);
+      
+      todoContainer.innerHTML = renderKanbanTasks(todoTasks);
+      inProgressContainer.innerHTML = renderKanbanTasks(inProgressTasks);
+      doneContainer.innerHTML = renderKanbanTasks(doneTasks);
+      
+      // Add drag and drop for kanban
+      addKanbanDragListeners();
+    }
+
+    function renderKanbanTasks(taskList) {
+      if (taskList.length === 0) {
+        return '<div style="text-align: center; opacity: 0.5; padding: 2rem;">Drop tasks here</div>';
+      }
+      
+      return taskList.map(task => `
+        <div class="task-item" data-task-id="${task.id}" draggable="true">
+          <div class="task-content" onclick="openTaskDetails('${task.id}')">
+            <div class="task-title">${escapeHtml(task.title)}</div>
+            <div class="task-meta">
+              <span class="task-priority priority-${task.priority}">${task.priority}</span>
+              ${task.dueDate ? `<span>📅 ${formatDate(task.dueDate)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCalendarView() {
+      const grid = document.getElementById('calendarGrid');
+      const monthHeader = document.getElementById('currentMonth');
+      
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      
+      monthHeader.textContent = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDate = new Date(firstDay);
+      startDate.setDate(startDate.getDate() - firstDay.getDay());
+      
+      let html = '';
+      const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      
+      // Add day headers
+      dayHeaders.forEach(day => {
+        html += `<div style="padding: 0.5rem; font-weight: bold; text-align: center; background: var(--surface-variant);">${day}</div>`;
+      });
+      
+      // Add calendar days
+      for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        
+        const isCurrentMonth = date.getMonth() === month;
+        const isToday = date.toDateString() === now.toDateString();
+        const dayTasks = tasks.filter(task => 
+          task.dueDate && new Date(task.dueDate).toDateString() === date.toDateString()
+        );
+        
+        html += `
+          <div class="calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}">
+            <div class="calendar-date">${date.getDate()}</div>
+            ${dayTasks.map(task => `
+              <div class="calendar-task" onclick="openTaskDetails('${task.id}')">
+                ${escapeHtml(task.title)}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      grid.innerHTML = html;
+    }
+
+    function renderAnalyticsView() {
+      const completedTasks = tasks.filter(t => t.completed);
+      const completedToday = completedTasks.filter(t => {
+        const completedDate = new Date(t.completedAt);
+        const today = new Date();
+        return completedDate.toDateString() === today.toDateString();
+      });
+      
+      document.getElementById('completedCount').textContent = completedTasks.length;
+      document.getElementById('streakCount').textContent = streak;
+      document.getElementById('totalXP').textContent = totalXP;
+      document.getElementById('focusTime').textContent = Math.floor(focusTimeTotal / 60) + 'h';
+    }
+
+    // Utility functions
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      if (date.toDateString() === today.toDateString()) {
+        return 'Today';
+      } else if (date.toDateString() === tomorrow.toDateString()) {
+        return 'Tomorrow';
+      } else {
+        return date.toLocaleDateString();
+      }
+    }
+
+    function getFilteredTasks() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filter = document.getElementById('filterSelect').value;
+      const sort = document.getElementById('sortSelect').value;
+      
+      let filtered = tasks.filter(task => {
+        // Search filter
+        const matchesSearch = !searchTerm || 
+          task.title.toLowerCase().includes(searchTerm) ||
+          task.description.toLowerCase().includes(searchTerm) ||
+          task.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+        
+        // Status filter
+        let matchesFilter = true;
+        if (filter === 'pending') matchesFilter = !task.completed;
+        else if (filter === 'completed') matchesFilter = task.completed;
+        else if (filter === 'overdue') {
+          matchesFilter = task.dueDate && new Date(task.dueDate) < new Date() && !task.completed;
+        }
+        
+        return matchesSearch && matchesFilter;
+      });
+      
+      // Sort tasks
+      filtered.sort((a, b) => {
+        if (sort === 'due') {
+          if (!a.dueDate && !b.dueDate) return 0;
+          if (!a.dueDate) return 1;
+          if (!b.dueDate) return -1;
+          return new Date(a.dueDate) - new Date(b.dueDate);
+        } else if (sort === 'priority') {
+          const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        } else {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+      });
+      
+      return filtered;
+    }
+
+    // Event handlers
+    function switchView(viewName) {
+      currentView = viewName;
+      
+      // Update navigation
+      document.querySelectorAll('.md3-nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.view === viewName);
+      });
+      
+      // Update views
+      document.querySelectorAll('.view-content').forEach(view => {
+        view.classList.remove('active');
+      });
+      document.getElementById(`${viewName}-view`).classList.add('active');
+      
+      renderCurrentView();
+    }
+
+    function renderCurrentView() {
+      switch (currentView) {
+        case 'tasks':
+          renderTasksView();
+          break;
+        case 'kanban':
+          renderKanbanView();
+          break;
+        case 'calendar':
+          renderCalendarView();
+          break;
+        case 'analytics':
+          renderAnalyticsView();
+          break;
+        case 'focus':
+          renderFocusView();
+          break;
+      }
+    }
+
+    function renderFocusView() {
+      const container = document.getElementById('currentFocusTask');
+      const pendingTasks = tasks.filter(t => !t.completed);
+      
+      if (pendingTasks.length === 0) {
+        container.innerHTML = '<p>No pending tasks. Great job! 🎉</p>';
+        return;
+      }
+      
+      // Get highest priority task or first due task
+      const focusTask = pendingTasks
+        .sort((a, b) => {
+          const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        })[0];
+      
+      container.innerHTML = `
+        <div class="md3-card focus-task-card">
+          <h3>Current Focus</h3>
+          <div class="focus-task-title">${escapeHtml(focusTask.title)}</div>
+          ${focusTask.description ? `<p>${escapeHtml(focusTask.description)}</p>` : ''}
+          <div class="focus-actions">
+            <button onclick="toggleTaskComplete('${focusTask.id}')" class="md3-btn">Complete Task</button>
+            <button onclick="switchView('tasks')" class="md3-btn outline">Back to Tasks</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function openTaskModal(taskId = null) {
+      currentTaskId = taskId;
+      const modal = document.getElementById('taskModal');
+      const form = document.getElementById('taskForm');
+      const title = document.getElementById('taskModalTitle');
+      
+      if (taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        title.textContent = 'Edit Task';
+        document.getElementById('taskTitle').value = task.title;
+        document.getElementById('taskDescription').value = task.description;
+        document.getElementById('taskDueDate').value = task.dueDate || '';
+        document.getElementById('taskPriority').value = task.priority;
+        document.getElementById('taskTags').value = task.tags.join(', ');
+        document.getElementById('taskEstimate').value = task.estimatedTime || '';
+      } else {
+        title.textContent = 'Add New Task';
+        form.reset();
+        document.getElementById('taskPriority').value = 'medium';
+      }
+      
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      document.getElementById('taskTitle').focus();
+    }
+
+    function closeTaskModal() {
+      const modal = document.getElementById('taskModal');
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      currentTaskId = null;
+    }
+
+    function editTask(taskId) {
+      openTaskModal(taskId);
+    }
+
+    function openTaskDetails(taskId) {
+      // For now, open edit modal. In a full implementation, this could show a detailed view
+      openTaskModal(taskId);
+    }
+
+    function showToast(message, actionText = null, actionCallback = null) {
+      const toast = document.getElementById('md3Toast');
+      toast.innerHTML = `
+        ${message}
+        ${actionText ? `<button onclick="${actionCallback ? 'this.parentElement.actionCallback()' : ''}" style="margin-left: 1rem; background: none; border: none; color: inherit; text-decoration: underline; cursor: pointer;">${actionText}</button>` : ''}
+      `;
+      
+      if (actionCallback) {
+        toast.actionCallback = actionCallback;
+      }
+      
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    // Drag and drop functionality
+    function addDragListeners() {
+      document.querySelectorAll('.task-item[draggable]').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', item.dataset.taskId);
+          item.style.opacity = '0.5';
+        });
+        
+        item.addEventListener('dragend', () => {
+          item.style.opacity = '1';
+        });
+      });
+    }
+
+    function addKanbanDragListeners() {
+      const columns = document.querySelectorAll('.kanban-tasks');
+      
+      columns.forEach(column => {
+        column.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          column.classList.add('drag-over');
+        });
+        
+        column.addEventListener('dragleave', () => {
+          column.classList.remove('drag-over');
+        });
+        
+        column.addEventListener('drop', (e) => {
+          e.preventDefault();
+          column.classList.remove('drag-over');
+          
+          const taskId = e.dataTransfer.getData('text/plain');
+          const newStatus = column.dataset.status;
+          
+          const task = tasks.find(t => t.id === taskId);
+          if (task) {
+            task.status = newStatus;
+            if (newStatus === 'done') {
+              task.completed = true;
+              task.completedAt = new Date().toISOString();
+            } else {
+              task.completed = false;
+              task.completedAt = null;
+            }
+            
+            updateTask(taskId, task);
+          }
+        });
+      });
+      
+      addDragListeners();
+    }
+
+    // Pomodoro timer functionality
+    function startPomodoro() {
+      if (isPomodorRunning) return;
+      
+      isPomodorRunning = true;
+      pomodoroInterval = setInterval(() => {
+        pomodoroTimeLeft--;
+        updatePomodoroDisplay();
+        
+        if (pomodoroTimeLeft <= 0) {
+          stopPomodoro();
+          showPomodoroNotification();
+          focusTimeTotal += 25 * 60; // Add 25 minutes
+          db.saveSetting('focus-time', focusTimeTotal);
+        }
+      }, 1000);
+      
+      updatePomodoroButtons();
+    }
+
+    function stopPomodoro() {
+      isPomodorRunning = false;
+      if (pomodoroInterval) {
+        clearInterval(pomodoroInterval);
+        pomodoroInterval = null;
+      }
+      updatePomodoroButtons();
+    }
+
+    function resetPomodoro() {
+      stopPomodoro();
+      pomodoroTimeLeft = 25 * 60;
+      updatePomodoroDisplay();
+    }
+
+    function updatePomodoroDisplay() {
+      const minutes = Math.floor(pomodoroTimeLeft / 60);
+      const seconds = pomodoroTimeLeft % 60;
+      document.getElementById('pomodoroTimer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function updatePomodoroButtons() {
+      const startBtn = document.getElementById('pomodoroStart');
+      startBtn.textContent = isPomodorRunning ? 'Pause' : 'Start';
+      startBtn.onclick = isPomodorRunning ? stopPomodoro : startPomodoro;
+    }
+
+    function showPomodoroNotification() {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Pomodoro Complete!', {
+          body: 'Time for a break! 🎉',
+          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🍅</text></svg>'
+        });
+      }
+      showToast('🍅 Pomodoro complete! Time for a break!');
+    }
+
+    // Calendar navigation
+    let currentCalendarDate = new Date();
+
+    function navigateCalendar(direction) {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+      renderCalendarView();
+    }
+
+    // Command palette functionality
+    function toggleCommandPalette() {
+      const palette = document.getElementById('commandPalette');
+      const isActive = palette.classList.contains('active');
+      
+      if (isActive) {
+        palette.classList.remove('active');
+      } else {
+        palette.classList.add('active');
+        document.getElementById('commandInput').focus();
+        updateCommandResults('');
+      }
+    }
+
+    function updateCommandResults(query) {
+      const results = document.getElementById('commandResults');
+      const commands = [
+        { name: 'Add Task', action: () => { openTaskModal(); toggleCommandPalette(); } },
+        { name: 'Switch to Tasks', action: () => { switchView('tasks'); toggleCommandPalette(); } },
+        { name: 'Switch to Kanban', action: () => { switchView('kanban'); toggleCommandPalette(); } },
+        { name: 'Switch to Calendar', action: () => { switchView('calendar'); toggleCommandPalette(); } },
+        { name: 'Switch to Focus Mode', action: () => { switchView('focus'); toggleCommandPalette(); } },
+        { name: 'Toggle Dark Mode', action: () => { toggleTheme(); toggleCommandPalette(); } },
+        { name: 'Start Pomodoro', action: () => { startPomodoro(); toggleCommandPalette(); } }
+      ];
+      
+      const filtered = commands.filter(cmd => 
+        cmd.name.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      results.innerHTML = filtered.map((cmd, index) => `
+        <div class="command-item ${index === 0 ? 'selected' : ''}" data-command="${cmd.name}">
+          ${cmd.name}
+        </div>
+      `).join('');
+      
+      // Add click handlers
+      results.querySelectorAll('.command-item').forEach((item, index) => {
+        item.onclick = filtered[index].action;
+      });
+    }
+
+    // Theme management
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle('theme-dark');
+      const theme = isDark ? 'dark' : 'light';
+      db.saveSetting('theme', theme);
+      updateThemeButton(theme);
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById('themeToggle');
+      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // PWA and Service Worker setup
+    function setupPWA() {
+      // Create manifest dynamically
+      const manifest = {
+        name: 'TaskZen — Material 3 Web',
+        short_name: 'TaskZen',
+        description: 'Material 3 Task Manager',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#ffffff',
+        theme_color: '#4a90e2',
+        icons: [
+          {
+            src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234a90e2" rx="20"/><text x="50" y="65" font-size="50" text-anchor="middle" fill="white">✓</text></svg>',
+            sizes: '192x192',
+            type: 'image/svg+xml'
+          }
+        ]
+      };
+      
+      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+      const manifestURL = URL.createObjectURL(manifestBlob);
+      
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = manifestURL;
+      document.head.appendChild(link);
+      
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          const CACHE_NAME = 'taskzen-v1';
+          
+          self.addEventListener('install', (event) => {
+            event.waitUntil(
+              caches.open(CACHE_NAME).then((cache) => {
+                return cache.addAll(['./']);
+              })
+            );
+          });
+          
+          self.addEventListener('fetch', (event) => {
+            event.respondWith(
+              caches.match(event.request).then((response) => {
+                return response || fetch(event.request);
+              })
+            );
+          });
+        `;
+        
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        const swURL = URL.createObjectURL(swBlob);
+        
+        navigator.serviceWorker.register(swURL).then((registration) => {
+          console.log('Service Worker registered successfully');
+        }).catch((error) => {
+          console.log('Service Worker registration failed:', error);
+        });
+      }
+    }
+
+    // Request notification permission
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    // Initialize app
+    async function initApp() {
+      // Hide onboarding animation
+      setTimeout(() => {
+        document.getElementById('onboardingAnim').style.display = 'none';
+      }, 2000);
+      
+      // Initialize database and load data
+      await db.init();
+      
+      // Setup PWA features
+      setupPWA();
+      requestNotificationPermission();
+      
+      // Set up event listeners
+      document.getElementById('addTaskBtn').onclick = () => openTaskModal();
+      document.getElementById('themeToggle').onclick = toggleTheme;
+      
+      // Navigation
+      document.querySelectorAll('.md3-nav-item').forEach(item => {
+        item.onclick = () => switchView(item.dataset.view);
+      });
+      
+      // Search and filters
+      document.getElementById('searchInput').oninput = renderCurrentView;
+      document.getElementById('filterSelect').onchange = renderCurrentView;
+      document.getElementById('sortSelect').onchange = renderCurrentView;
+      
+      // Task form
+      document.getElementById('taskForm').onsubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const taskData = {
+          title: document.getElementById('taskTitle').value,
+          description: document.getElementById('taskDescription').value,
+          dueDate: document.getElementById('taskDueDate').value,
+          priority: document.getElementById('taskPriority').value,
+          tags: document.getElementById('taskTags').value,
+          estimatedTime: parseInt(document.getElementById('taskEstimate').value) || null
+        };
+        
+        if (currentTaskId) {
+          updateTask(currentTaskId, taskData);
+          showToast('Task updated!');
+        } else {
+          createTask(taskData);
+        }
+        
+        closeTaskModal();
+      };
+      
+      // Calendar navigation
+      document.getElementById('prevMonth').onclick = () => navigateCalendar(-1);
+      document.getElementById('nextMonth').onclick = () => navigateCalendar(1);
+      
+      // Pomodoro controls
+      document.getElementById('pomodoroStart').onclick = startPomodoro;
+      document.getElementById('pomodoroStop').onclick = stopPomodoro;
+      document.getElementById('pomodoroReset').onclick = resetPomodoro;
+      
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        // Command palette: Ctrl/Cmd + K
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          toggleCommandPalette();
+        }
+        
+        // Quick add task: N
+        if (e.key === 'n' && !e.ctrlKey && !e.metaKey && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          openTaskModal();
+        }
+        
+        // Escape to close modals
+        if (e.key === 'Escape') {
+          closeTaskModal();
+          const palette = document.getElementById('commandPalette');
+          if (palette.classList.contains('active')) {
+            toggleCommandPalette();
+          }
+        }
+      });
+      
+      // Command palette input
+      document.getElementById('commandInput').oninput = (e) => {
+        updateCommandResults(e.target.value);
+      };
+      
+      document.getElementById('commandInput').onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          const selected = document.querySelector('.command-item.selected');
+          if (selected) selected.click();
+        }
+      };
+      
+      // Initial render
+      renderCurrentView();
+      
+      // Set up periodic reminders (every 5 minutes)
+      setInterval(() => {
+        const overdueTasks = tasks.filter(task => 
+          !task.completed && 
+          task.dueDate && 
+          new Date(task.dueDate) < new Date()
+        );
+        
+        if (overdueTasks.length > 0 && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification(`You have ${overdueTasks.length} overdue task(s)`, {
+            body: 'Click to view your tasks',
+            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⚠️</text></svg>'
+          });
+        }
+      }, 300000); // 5 minutes
+    }
+
+    // Global functions for onclick handlers
+    window.openTaskModal = openTaskModal;
+    window.closeTaskModal = closeTaskModal;
+    window.editTask = editTask;
+    window.deleteTask = deleteTask;
+    window.toggleTaskComplete = toggleTaskComplete;
+    window.openTaskDetails = openTaskDetails;
+    window.startPomodoro = startPomodoro;
+    window.stopPomodoro = stopPomodoro;
+    window.resetPomodoro = resetPomodoro;
+    window.navigateCalendar = navigateCalendar;
+    window.switchView = switchView;
+    window.toggleTheme = toggleTheme;
+    
+    // Start the app when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
 </body>
 </html>
